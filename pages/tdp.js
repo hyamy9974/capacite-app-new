@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import TableauSalles from "../components/TableauSalles";
 import TableauEffectifAjout from "../components/TableauEffectifAjout";
 import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
@@ -105,23 +105,41 @@ export default function TDP() {
   };
 
   const handleSave = () => {
-    const data = {
-      salles,
-      cnos,
-      semaines,
-      heures,
-      apprenants,
-      effectif,
-      repartition,
-    };
-    localStorage.setItem("tdp-data", JSON.stringify(data));
-    alert("Les données ont été enregistrées !");
+    try {
+      const data = {
+        salles,
+        cnos,
+        semaines,
+        heures,
+        apprenants,
+        effectif,
+        repartition,
+      };
+      localStorage.setItem("tdp-data", JSON.stringify(data));
+      alert("Les données ont été enregistrées !");
+    } catch (e) {
+      alert("Erreur lors de l'enregistrement des données.");
+    }
   };
 
   const handleReset = () => {
     localStorage.removeItem("tdp-data");
     window.location.reload();
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem("tdp-data");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSalles(parsed.salles || salles);
+      setCnos(parsed.cnos || cnos);
+      setSemaines(parsed.semaines || semaines);
+      setHeures(parsed.heures || heures);
+      setApprenants(parsed.apprenants || apprenants);
+      setEffectif(parsed.effectif || effectif);
+      setRepartition(parsed.repartition || repartition);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
