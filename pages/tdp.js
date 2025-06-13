@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect } from "react";
 import TableauSalles from "../components/TableauSalles";
-import TableauEffectif from "../components/TableauEffectif";
-import TableauRepartition from "../components/TableauRepartition";
+import TableauEffectifAjout from "../components/TableauEffectifAjout";
+import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
 import TableauResultats from "../components/TableauResultats";
 import useSpecialties from "../components/useSpecialties";
-import { generatePDF } from "../components/generatePDF"; // نفس دالة PDF المستخدمة في tda.js
+import { generatePDF } from "../components/generatePDF";
 
 // دوال مساعدة
 const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -28,12 +28,30 @@ export default function TDP() {
     tpSpecifiques: [defaultSalle(1.0, 72, 56)],
   });
 
-  const [cnos, setCnos] = useState({ theorie: 1.0, pratique: 1.0, tpSpecifiques: 1.0 });
-  const [semaines, setSemaines] = useState({ theorie: 72, pratique: 72, tpSpecifiques: 72 });
-  const [heures, setHeures] = useState({ theorie: 56, pratique: 56, tpSpecifiques: 56 });
-  const [apprenants, setApprenants] = useState({ theorie: 26, pratique: 26, tpSpecifiques: 26 });
+  const [cnos, setCnos] = useState({
+    theorie: 1.0,
+    pratique: 1.0,
+    tpSpecifiques: 1.0,
+  });
+  const [semaines, setSemaines] = useState({
+    theorie: 72,
+    pratique: 72,
+    tpSpecifiques: 72,
+  });
+  const [heures, setHeures] = useState({
+    theorie: 56,
+    pratique: 56,
+    tpSpecifiques: 56,
+  });
+  const [apprenants, setApprenants] = useState({
+    theorie: 26,
+    pratique: 26,
+    tpSpecifiques: 26,
+  });
 
-  const [effectif, setEffectif] = useState([{ specialite: "", groupes: 0, apprenants: 0 }]);
+  const [effectif, setEffectif] = useState([
+    { specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }
+  ]);
   const [repartition, setRepartition] = useState({
     besoinTheoTotal: 0,
     besoinPratTotal: 0,
@@ -42,21 +60,8 @@ export default function TDP() {
     moyennePrat: 0,
     moyenneTpSpec: 0,
   });
-
   const specialties = useSpecialties();
 
-  // تحميل البيانات من localStorage عند التشغيل
-  useEffect(() => {
-    const saved = localStorage.getItem("tdpData");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setSalles(parsed.salles);
-      setEffectif(parsed.effectif);
-      setRepartition(parsed.repartition);
-    }
-  }, []);
-
-  // ملخصات القاعات
   const totalHeuresTheo = somme(salles.theorie.map(s => Number(s.heuresMax) || 0));
   const totalHeuresPrat = somme(salles.pratique.map(s => Number(s.heuresMax) || 0));
   const totalHeuresTpSpec = somme(salles.tpSpecifiques.map(s => Number(s.heuresMax) || 0));
@@ -80,7 +85,11 @@ export default function TDP() {
   };
 
   const handleEffectifChange = (rows) => {
-    setEffectif(rows.length ? rows : [{ specialite: "", groupes: 0, apprenants: 0 }]);
+    if (!rows || rows.length === 0) {
+      setEffectif([{ specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }]);
+    } else {
+      setEffectif(rows);
+    }
   };
 
   const handleRepartitionChange = (repData) => {
@@ -95,63 +104,32 @@ export default function TDP() {
     });
   };
 
-  // حفظ البيانات في localStorage
-  const handleSave = () => {
-    const data = { salles, effectif, repartition };
-    localStorage.setItem("tdpData", JSON.stringify(data));
-    alert("Les données ont été enregistrées !");
-  };
-
-  // إعادة التهيئة
-  const handleReset = () => {
-    localStorage.removeItem("tdpData");
-    setSalles({
-      theorie: [defaultSalle(1.0, 72, 56)],
-      pratique: [defaultSalle(1.0, 72, 56)],
-      tpSpecifiques: [defaultSalle(1.0, 72, 56)],
-    });
-    setEffectif([{ specialite: "", groupes: 0, apprenants: 0 }]);
-    setRepartition({
-      besoinTheoTotal: 0,
-      besoinPratTotal: 0,
-      besoinTpSpecTotal: 0,
-      moyenneTheo: 0,
-      moyennePrat: 0,
-      moyenneTpSpec: 0,
-    });
-    alert("Les données ont été réinitialisées.");
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div ref={pdfRef}>
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Test de Dépassement Prévisionnel
+          Test de Dépassement Prévu
         </h1>
         <div className="flex gap-6 flex-wrap mb-8">
           <TableauSalles
-            salles={salles}
-            setSalles={setSalles}
-            cnos={cnos}
-            setCnos={setCnos}
-            semaines={semaines}
-            setSemaines={setSemaines}
-            heures={heures}
-            setHeures={setHeures}
-            apprenants={apprenants}
-            setApprenants={setApprenants}
+            salles={salles} setSalles={setSalles}
+            cnos={cnos} setCnos={setCnos}
+            semaines={semaines} setSemaines={setSemaines}
+            heures={heures} setHeures={setHeures}
+            apprenants={apprenants} setApprenants={setApprenants}
           />
         </div>
-        <TableauEffectif
-          titre="Effectif Prévisionnel"
+        <TableauEffectifAjout
+          titre="Effectif Prévu"
           specialties={specialties}
           modeActuel={false}
           onDataChange={handleEffectifChange}
           data={effectif}
           salles={salles}
+          moyenneSurfaceTheo={moyenneSurfaceTheo}
         />
-        <TableauRepartition
-          titre="Répartition prévisionnelle des heures"
+        <TableauRepartitionAjout
+          titre="Répartition Prévue des heures"
           effectifData={effectif}
           specialties={specialties}
           onDataChange={handleRepartitionChange}
@@ -160,28 +138,94 @@ export default function TDP() {
         <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
       </div>
 
-      {/* أزرار في صف أفقي */}
+      {/* الأزرار في صف أفقي أسفل الصفحة */}
       <div className="flex flex-wrap justify-center gap-4 mt-10">
         <button
           onClick={() => window.location.href = "/"}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          Page d&apos;accueil
+          Page d'accueil
         </button>
         <button
-          onClick={() => generatePDF({ titre: "Test de Dépassement Prévisionnel", ref: pdfRef })}
+          onClick={() => generatePDF({
+            titre: "Rapport de diagnostic de la capacité d'accueil prévue",
+            tables: [
+              // إعداد المصفوفات حسب بياناتك الحقيقية
+              {
+                title: "Salles Théoriques",
+                columns: ["CNO", "Semaines", "Heures", "Surface P", "Heures Max"],
+                rows: salles.theorie.map(s => [
+                  s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax
+                ])
+              },
+              {
+                title: "Salles Pratiques",
+                columns: ["CNO", "Semaines", "Heures", "Surface P", "Heures Max"],
+                rows: salles.pratique.map(s => [
+                  s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax
+                ])
+              },
+              {
+                title: "TP Spécifiques",
+                columns: ["CNO", "Semaines", "Heures", "Surface P", "Heures Max"],
+                rows: salles.tpSpecifiques.map(s => [
+                  s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax
+                ])
+              },
+              {
+                title: "Effectif Prévu",
+                columns: ["Spécialité", "Groupes", "Groupes Ajout", "Apprenants"],
+                rows: effectif.map(e => [
+                  e.specialite, e.groupes, e.groupesAjout, e.apprenants
+                ])
+              },
+              {
+                title: "Répartition Prévue",
+                columns: ["Besoin Theo", "Besoin Prat", "Besoin TP Spec", "Moy Theo", "Moy Prat", "Moy TP Spec"],
+                rows: [[
+                  repartition.besoinTheoTotal,
+                  repartition.besoinPratTotal,
+                  repartition.besoinTpSpecTotal,
+                  repartition.moyenneTheo,
+                  repartition.moyennePrat,
+                  repartition.moyenneTpSpec
+                ]]
+              },
+            ]
+          })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           Générer le PDF
         </button>
         <button
-          onClick={handleSave}
+          onClick={() => {
+            const data = { salles, effectif, repartition };
+            localStorage.setItem("tdaData", JSON.stringify(data));
+            alert("Les données ont été enregistrées !");
+          }}
           className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
         >
           💾 Enregistrer les modifications
         </button>
         <button
-          onClick={handleReset}
+          onClick={() => {
+            localStorage.removeItem("tdaData");
+            setSalles({
+              theorie: [defaultSalle(1.0, 72, 56)],
+              pratique: [defaultSalle(1.0, 72, 56)],
+              tpSpecifiques: [defaultSalle(1.0, 72, 56)],
+            });
+            setEffectif([{ specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }]);
+            setRepartition({
+              besoinTheoTotal: 0,
+              besoinPratTotal: 0,
+              besoinTpSpecTotal: 0,
+              moyenneTheo: 0,
+              moyennePrat: 0,
+              moyenneTpSpec: 0,
+            });
+            alert("Les données ont été réinitialisées.");
+          }}
           className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
         >
           🗑️ Réinitialiser
