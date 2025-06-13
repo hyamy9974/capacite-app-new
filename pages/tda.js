@@ -166,13 +166,13 @@ export default function TDA() {
           onClick={() => window.location.href = "/"}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          Page d&apos;accueil
+          ⬅️ Page d&apos;accueil
         </button>
         <button
           onClick={() => generatePDF({ titre: "Test de Dépassement Actuel", ref: pdfRef })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
-          Générer le PDF
+          🧾 Générer le PDF
         </button>
         <button
           onClick={handleSave}

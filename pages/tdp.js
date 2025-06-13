@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import TableauSalles from "../components/TableauSalles";
 import TableauEffectifAjout from "../components/TableauEffectifAjout";
 import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
@@ -6,7 +6,6 @@ import TableauResultats from "../components/TableauResultats";
 import useSpecialties from "../components/useSpecialties";
 import { generatePDF } from "../components/generatePDF";
 
-// دوال مساعدة مباشرة
 const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 const somme = arr => arr.reduce((a, b) => a + b, 0);
 
@@ -22,7 +21,6 @@ const defaultSalle = (cno, semaines, heures) => ({
 export default function TDP() {
   const pdfRef = useRef();
 
-  // حالات الجداول الثلاثة (نظرية - تطبيقية - TP spécifiques)
   const [salles, setSalles] = useState({
     theorie: [defaultSalle(1.0, 72, 56)],
     pratique: [defaultSalle(1.0, 72, 56)],
@@ -54,7 +52,6 @@ export default function TDP() {
   const [effectif, setEffectif] = useState([
     { specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }
   ]);
-
   const [repartition, setRepartition] = useState({
     besoinTheoTotal: 0,
     besoinPratTotal: 0,
@@ -63,25 +60,8 @@ export default function TDP() {
     moyennePrat: 0,
     moyenneTpSpec: 0,
   });
-
   const specialties = useSpecialties();
 
-  // تحميل البيانات من localStorage
-  useEffect(() => {
-    const savedData = localStorage.getItem("tdpData");
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed.salles) setSalles(parsed.salles);
-        if (parsed.effectif) setEffectif(parsed.effectif);
-        if (parsed.repartition) setRepartition(parsed.repartition);
-      } catch (e) {
-        console.error("Erreur de chargement des données:", e);
-      }
-    }
-  }, []);
-
-  // ملخصات القاعات
   const totalHeuresTheo = somme(salles.theorie.map(s => Number(s.heuresMax) || 0));
   const totalHeuresPrat = somme(salles.pratique.map(s => Number(s.heuresMax) || 0));
   const totalHeuresTpSpec = somme(salles.tpSpecifiques.map(s => Number(s.heuresMax) || 0));
@@ -127,18 +107,20 @@ export default function TDP() {
   const handleSave = () => {
     const data = {
       salles,
+      cnos,
+      semaines,
+      heures,
+      apprenants,
       effectif,
       repartition,
     };
-    localStorage.setItem("tdpData", JSON.stringify(data));
+    localStorage.setItem("tdp-data", JSON.stringify(data));
     alert("Les données ont été enregistrées !");
   };
 
-  const handleClear = () => {
-    if (confirm("Voulez-vous vraiment réinitialiser les données ?")) {
-      localStorage.removeItem("tdpData");
-      location.reload();
-    }
+  const handleReset = () => {
+    localStorage.removeItem("tdp-data");
+    window.location.reload();
   };
 
   return (
@@ -180,30 +162,31 @@ export default function TDP() {
         <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
       </div>
 
-      <div className="flex flex-wrap justify-center items-center gap-4 mt-8">
+      {/* الأزرار في صف أفقي */}
+      <div className="flex flex-wrap justify-center gap-4 mt-10">
         <button
-          onClick={handleSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow"
+          onClick={() => window.location.href = "/"}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          💾 Enregistrer les modifications
-        </button>
-        <button
-          onClick={handleClear}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded shadow"
-        >
-          ♻️ Réinitialiser
+          ⬅️ Page d&apos;accueil
         </button>
         <button
           onClick={() => generatePDF({ titre: "Test de Dépassement Prévu", ref: pdfRef })}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow"
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           🧾 Générer le PDF
         </button>
         <button
-          onClick={() => window.location.href = "/"}
-          className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-6 rounded shadow"
+          onClick={handleSave}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
         >
-          ⬅️ Page d&apos;accueil
+          💾 Enregistrer les modifications
+        </button>
+        <button
+          onClick={handleReset}
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
+        >
+          🗑️ Réinitialiser
         </button>
       </div>
     </div>
