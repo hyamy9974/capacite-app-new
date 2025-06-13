@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import TableauSalles from "../components/TableauSalles";
 import TableauEffectifAjout from "../components/TableauEffectifAjout";
 import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
@@ -22,6 +22,7 @@ const defaultSalle = (cno, semaines, heures) => ({
 export default function TDP() {
   const pdfRef = useRef();
 
+  // حالات الجداول الثلاثة (نظرية - تطبيقية - TP spécifiques)
   const [salles, setSalles] = useState({
     theorie: [defaultSalle(1.0, 72, 56)],
     pratique: [defaultSalle(1.0, 72, 56)],
@@ -43,6 +44,7 @@ export default function TDP() {
     pratique: 56,
     tpSpecifiques: 56,
   });
+
   const [apprenants, setApprenants] = useState({
     theorie: 26,
     pratique: 26,
@@ -52,6 +54,7 @@ export default function TDP() {
   const [effectif, setEffectif] = useState([
     { specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }
   ]);
+
   const [repartition, setRepartition] = useState({
     besoinTheoTotal: 0,
     besoinPratTotal: 0,
@@ -60,8 +63,25 @@ export default function TDP() {
     moyennePrat: 0,
     moyenneTpSpec: 0,
   });
+
   const specialties = useSpecialties();
 
+  // تحميل البيانات من localStorage
+  useEffect(() => {
+    const savedData = localStorage.getItem("tdpData");
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.salles) setSalles(parsed.salles);
+        if (parsed.effectif) setEffectif(parsed.effectif);
+        if (parsed.repartition) setRepartition(parsed.repartition);
+      } catch (e) {
+        console.error("Erreur de chargement des données:", e);
+      }
+    }
+  }, []);
+
+  // ملخصات القاعات
   const totalHeuresTheo = somme(salles.theorie.map(s => Number(s.heuresMax) || 0));
   const totalHeuresPrat = somme(salles.pratique.map(s => Number(s.heuresMax) || 0));
   const totalHeuresTpSpec = somme(salles.tpSpecifiques.map(s => Number(s.heuresMax) || 0));
@@ -104,31 +124,21 @@ export default function TDP() {
     });
   };
 
-  // ** إضافة حفظ البيانات محلياً **
   const handleSave = () => {
-    const data = { salles, effectif, repartition };
+    const data = {
+      salles,
+      effectif,
+      repartition,
+    };
     localStorage.setItem("tdpData", JSON.stringify(data));
     alert("Les données ont été enregistrées !");
   };
 
-  // ** إضافة إعادة التهيئة **
-  const handleReset = () => {
-    localStorage.removeItem("tdpData");
-    setSalles({
-      theorie: [defaultSalle(1.0, 72, 56)],
-      pratique: [defaultSalle(1.0, 72, 56)],
-      tpSpecifiques: [defaultSalle(1.0, 72, 56)],
-    });
-    setEffectif([{ specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }]);
-    setRepartition({
-      besoinTheoTotal: 0,
-      besoinPratTotal: 0,
-      besoinTpSpecTotal: 0,
-      moyenneTheo: 0,
-      moyennePrat: 0,
-      moyenneTpSpec: 0,
-    });
-    alert("Les données ont été réinitialisées.");
+  const handleClear = () => {
+    if (confirm("Voulez-vous vraiment réinitialiser les données ?")) {
+      localStorage.removeItem("tdpData");
+      location.reload();
+    }
   };
 
   return (
@@ -170,31 +180,30 @@ export default function TDP() {
         <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
       </div>
 
-      {/* أزرار أسفل الصفحة - بشكل صف أفقي */}
-      <div className="flex flex-wrap justify-center gap-4 mt-10">
-        <button
-          onClick={() => window.location.href = "/"}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
-        >
-          Page d&apos;accueil
-        </button>
-        <button
-          onClick={() => generatePDF({ titre: "Test de Dépassement Prévu", ref: pdfRef })}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
-        >
-          Générer le PDF
-        </button>
+      <div className="flex flex-wrap justify-center items-center gap-4 mt-8">
         <button
           onClick={handleSave}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow"
         >
           💾 Enregistrer les modifications
         </button>
         <button
-          onClick={handleReset}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
+          onClick={handleClear}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded shadow"
         >
-          🗑️ Réinitialiser
+          ♻️ Réinitialiser
+        </button>
+        <button
+          onClick={() => generatePDF({ titre: "Test de Dépassement Prévu", ref: pdfRef })}
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow"
+        >
+          🧾 Générer le PDF
+        </button>
+        <button
+          onClick={() => window.location.href = "/"}
+          className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-6 rounded shadow"
+        >
+          ⬅️ Page d&apos;accueil
         </button>
       </div>
     </div>
