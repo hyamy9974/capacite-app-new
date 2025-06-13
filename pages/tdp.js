@@ -1,120 +1,201 @@
-import React, { useState } from "react";
-import { generatePDF } from "@/components/generatePDF";
-import TableauSalles from "@/components/TableauSalles";
-import TableauEffectif from "@/components/TableauEffectif";
-import TableauRepartition from "@/components/TableauRepartition";
-import TableauResultat from "@/components/TableauResultat";
-import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
+import TableauSalles from "../components/TableauSalles";
+import TableauEffectifAjout from "../components/TableauEffectifAjout";
+import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
+import TableauResultats from "../components/TableauResultats";
+import useSpecialties from "../components/useSpecialties";
+import { generatePDF } from "../components/generatePDF";
+
+// دوال مساعدة مباشرة
+const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+const somme = arr => arr.reduce((a, b) => a + b, 0);
+
+const defaultSalle = (cno, semaines, heures) => ({
+  surface: "",
+  cno,
+  semaines,
+  heures,
+  surfaceP: 0,
+  heuresMax: Math.round(semaines * heures),
+});
 
 export default function TDP() {
-  const [sallesTheoriques, setSallesTheoriques] = useState([]);
-  const [sallesPratiques, setSallesPratiques] = useState([]);
-  const [effectif, setEffectif] = useState([]);
-  const [repartition, setRepartition] = useState([]);
+  const pdfRef = useRef();
 
-  const handleGeneratePDF = () => {
-    const titre = "Rapport de diagnostic de la capacité d'accueil prévue";
+  const [salles, setSalles] = useState({
+    theorie: [defaultSalle(1.0, 72, 56)],
+    pratique: [defaultSalle(1.0, 72, 56)],
+    tpSpecifiques: [defaultSalle(1.0, 72, 56)],
+  });
 
-    const tables = [
-      {
-        title: "Salles Théoriques",
-        columns: ["Type", "Surface pédagogique", "Heures disponibles"],
-        rows: sallesTheoriques.map((s) => [
-          s.type,
-          s.surface,
-          s.heures,
-        ]),
-      },
-      {
-        title: "Salles Pratiques",
-        columns: ["Type", "Surface pédagogique", "Heures disponibles"],
-        rows: sallesPratiques.map((s) => [
-          s.type,
-          s.surface,
-          s.heures,
-        ]),
-      },
-      {
-        title: "Effectif Prévu",
-        columns: ["Nom", "Nombre"],
-        rows: effectif.map((e) => [e.nom, e.nombre]),
-      },
-      {
-        title: "Répartition prévue des heures",
-        columns: ["Nom", "Heures Théoriques", "Heures Pratiques"],
-        rows: repartition.map((r) => [
-          r.nom,
-          r.heuresTheoriques,
-          r.heuresPratiques,
-        ]),
-      },
-      {
-        title: "Résultat",
-        columns: ["Formation", "État prévu"],
-        rows: [["Formation 1", "Suffisante"]],
-      },
-    ];
+  const [cnos, setCnos] = useState({
+    theorie: 1.0,
+    pratique: 1.0,
+    tpSpecifiques: 1.0,
+  });
+  const [semaines, setSemaines] = useState({
+    theorie: 72,
+    pratique: 72,
+    tpSpecifiques: 72,
+  });
+  const [heures, setHeures] = useState({
+    theorie: 56,
+    pratique: 56,
+    tpSpecifiques: 56,
+  });
+  const [apprenants, setApprenants] = useState({
+    theorie: 26,
+    pratique: 26,
+    tpSpecifiques: 26,
+  });
 
-    generatePDF({ titre, tables });
+  const [effectif, setEffectif] = useState([
+    { specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }
+  ]);
+  const [repartition, setRepartition] = useState({
+    besoinTheoTotal: 0,
+    besoinPratTotal: 0,
+    besoinTpSpecTotal: 0,
+    moyenneTheo: 0,
+    moyennePrat: 0,
+    moyenneTpSpec: 0,
+  });
+  const specialties = useSpecialties();
+
+  const totalHeuresTheo = somme(salles.theorie.map(s => Number(s.heuresMax) || 0));
+  const totalHeuresPrat = somme(salles.pratique.map(s => Number(s.heuresMax) || 0));
+  const totalHeuresTpSpec = somme(salles.tpSpecifiques.map(s => Number(s.heuresMax) || 0));
+  const moyenneSurfaceTheo = moyenne(salles.theorie.map(s => Number(s.surfaceP) || 0));
+  const moyenneSurfacePrat = moyenne(salles.pratique.map(s => Number(s.surfaceP) || 0));
+  const moyenneSurfaceTpSpec = moyenne(salles.tpSpecifiques.map(s => Number(s.surfaceP) || 0));
+
+  const resultatsData = {
+    totalHeuresTheo,
+    totalHeuresPrat,
+    totalHeuresTpSpec,
+    besoinTheoTotal: repartition.besoinTheoTotal,
+    besoinPratTotal: repartition.besoinPratTotal,
+    besoinTpSpecTotal: repartition.besoinTpSpecTotal,
+    moyenneBesoinTheo: repartition.moyenneTheo,
+    moyenneBesoinPrat: repartition.moyennePrat,
+    moyenneBesoinTpSpec: repartition.moyenneTpSpec,
+    moyenneSurfaceTheo,
+    moyenneSurfacePrat,
+    moyenneSurfaceTpSpec,
   };
 
-  const handleSaveData = () => {
-    localStorage.setItem("tdp_sallesTheoriques", JSON.stringify(sallesTheoriques));
-    localStorage.setItem("tdp_sallesPratiques", JSON.stringify(sallesPratiques));
-    localStorage.setItem("tdp_effectif", JSON.stringify(effectif));
-    localStorage.setItem("tdp_repartition", JSON.stringify(repartition));
-    alert("Les données ont été enregistrées !");
-  };
-
-  const handleClearData = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir effacer toutes les données ?")) {
-      localStorage.removeItem("tdp_sallesTheoriques");
-      localStorage.removeItem("tdp_sallesPratiques");
-      localStorage.removeItem("tdp_effectif");
-      localStorage.removeItem("tdp_repartition");
-      setSallesTheoriques([]);
-      setSallesPratiques([]);
-      setEffectif([]);
-      setRepartition([]);
+  const handleEffectifChange = (rows) => {
+    if (!rows || rows.length === 0) {
+      setEffectif([{ specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }]);
+    } else {
+      setEffectif(rows);
     }
   };
 
+  const handleRepartitionChange = (repData) => {
+    const r = (Array.isArray(repData) && repData.length > 0) ? repData[0] : {};
+    setRepartition({
+      besoinTheoTotal: r.besoinTheoTotal ?? 0,
+      besoinPratTotal: r.besoinPratTotal ?? 0,
+      besoinTpSpecTotal: r.besoinTpSpecTotal ?? 0,
+      moyenneTheo: r.besoinTheoParGroupe ?? 0,
+      moyennePrat: r.besoinPratParGroupe ?? 0,
+      moyenneTpSpec: r.moyenneTpSpecParGroupe ?? 0,
+    });
+  };
+
+  // ** إضافة حفظ البيانات محلياً **
+  const handleSave = () => {
+    const data = { salles, effectif, repartition };
+    localStorage.setItem("tdpData", JSON.stringify(data));
+    alert("Les données ont été enregistrées !");
+  };
+
+  // ** إضافة إعادة التهيئة **
+  const handleReset = () => {
+    localStorage.removeItem("tdpData");
+    setSalles({
+      theorie: [defaultSalle(1.0, 72, 56)],
+      pratique: [defaultSalle(1.0, 72, 56)],
+      tpSpecifiques: [defaultSalle(1.0, 72, 56)],
+    });
+    setEffectif([{ specialite: "", groupes: 0, groupesAjout: 0, apprenants: 0 }]);
+    setRepartition({
+      besoinTheoTotal: 0,
+      besoinPratTotal: 0,
+      besoinTpSpecTotal: 0,
+      moyenneTheo: 0,
+      moyennePrat: 0,
+      moyenneTpSpec: 0,
+    });
+    alert("Les données ont été réinitialisées.");
+  };
+
   return (
-    <div className="p-4 space-y-8">
-      <h1 className="text-2xl font-bold text-center">
-        {"Rapport de l'état d'accueil prévu"}
-      </h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div ref={pdfRef}>
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Test de Dépassement Prévu
+        </h1>
+        <div className="flex gap-6 flex-wrap mb-8">
+          <TableauSalles
+            salles={salles}
+            setSalles={setSalles}
+            cnos={cnos}
+            setCnos={setCnos}
+            semaines={semaines}
+            setSemaines={setSemaines}
+            heures={heures}
+            setHeures={setHeures}
+            apprenants={apprenants}
+            setApprenants={setApprenants}
+          />
+        </div>
+        <TableauEffectifAjout
+          titre="Effectif Prévu"
+          specialties={specialties}
+          modeActuel={false}
+          onDataChange={handleEffectifChange}
+          data={effectif}
+          salles={salles}
+          moyenneSurfaceTheo={moyenneSurfaceTheo}
+        />
+        <TableauRepartitionAjout
+          titre="Répartition Prévue des heures"
+          effectifData={effectif}
+          specialties={specialties}
+          onDataChange={handleRepartitionChange}
+          salles={salles}
+        />
+        <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
+      </div>
 
-      <TableauSalles
-        type="théorique"
-        data={sallesTheoriques}
-        setData={setSallesTheoriques}
-        localStorageKey="tdp_sallesTheoriques"
-      />
-      <TableauSalles
-        type="pratique"
-        data={sallesPratiques}
-        setData={setSallesPratiques}
-        localStorageKey="tdp_sallesPratiques"
-      />
-      <TableauEffectif
-        data={effectif}
-        setData={setEffectif}
-        localStorageKey="tdp_effectif"
-      />
-      <TableauRepartition
-        data={repartition}
-        setData={setRepartition}
-        localStorageKey="tdp_repartition"
-      />
-      <TableauResultat />
-
-      <div className="flex justify-center gap-4 pt-4">
-        <Button onClick={handleGeneratePDF}>Télécharger le rapport PDF</Button>
-        <Button onClick={handleSaveData}>Enregistrer les données</Button>
-        <Button variant="destructive" onClick={handleClearData}>
-          Effacer les données
-        </Button>
+      {/* أزرار أسفل الصفحة - بشكل صف أفقي */}
+      <div className="flex flex-wrap justify-center gap-4 mt-10">
+        <button
+          onClick={() => window.location.href = "/"}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
+        >
+          Page d&apos;accueil
+        </button>
+        <button
+          onClick={() => generatePDF({ titre: "Test de Dépassement Prévu", ref: pdfRef })}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
+        >
+          Générer le PDF
+        </button>
+        <button
+          onClick={handleSave}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
+        >
+          💾 Enregistrer les modifications
+        </button>
+        <button
+          onClick={handleReset}
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
+        >
+          🗑️ Réinitialiser
+        </button>
       </div>
     </div>
   );
