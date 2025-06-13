@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  html, body {
+    background: white;
+    color: black;
+  }
+}
+
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #f9fafb;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+}
