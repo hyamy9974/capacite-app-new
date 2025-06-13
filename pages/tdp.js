@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import TableauSalles from "../components/TableauSalles";
 import TableauEffectifAjout from "../components/TableauEffectifAjout";
 import TableauRepartitionAjout from "../components/TableauRepartitionAjout";
@@ -6,7 +6,6 @@ import TableauResultats from "../components/TableauResultats";
 import useSpecialties from "../components/useSpecialties";
 import { generatePDF } from "../components/generatePDF";
 
-// دوال مساعدة
 const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 const somme = arr => arr.reduce((a, b) => a + b, 0);
 
@@ -138,7 +137,6 @@ export default function TDP() {
         <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
       </div>
 
-      {/* الأزرار في صف أفقي أسفل الصفحة */}
       <div className="flex flex-wrap justify-center gap-4 mt-10">
         <button
           onClick={() => window.location.href = "/"}
@@ -150,7 +148,6 @@ export default function TDP() {
           onClick={() => generatePDF({
             titre: "Rapport de diagnostic de la capacité d'accueil prévue",
             tables: [
-              // إعداد المصفوفات حسب بياناتك الحقيقية
               {
                 title: "Salles Théoriques",
                 columns: ["CNO", "Semaines", "Heures", "Surface P", "Heures Max"],
@@ -200,7 +197,7 @@ export default function TDP() {
         <button
           onClick={() => {
             const data = { salles, effectif, repartition };
-            localStorage.setItem("tdaData", JSON.stringify(data));
+            localStorage.setItem("tdpData", JSON.stringify(data));
             alert("Les données ont été enregistrées !");
           }}
           className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
@@ -209,7 +206,7 @@ export default function TDP() {
         </button>
         <button
           onClick={() => {
-            localStorage.removeItem("tdaData");
+            localStorage.removeItem("tdpData");
             setSalles({
               theorie: [defaultSalle(1.0, 72, 56)],
               pratique: [defaultSalle(1.0, 72, 56)],
