@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import Chart from 'chart.js/auto';
 
 // تحميل صورة الشعار (base64) من public/logo.png
 function loadLogoMinistere(callback) {
@@ -19,14 +19,62 @@ function loadLogoMinistere(callback) {
   };
 }
 
-export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
+// إنشاء رسم بياني وتحويله إلى صورة Base64
+async function createChartImage(labels, data, title, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 300;
+
+  new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: title,
+          data,
+          backgroundColor: color,
+        },
+      ],
+    },
+    options: {
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: { beginAtZero: true },
+      },
+    },
+  });
+
+  // ننتظر الرسم البياني ليتم إنشاؤه
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(canvas.toDataURL('image/png'));
+    }, 500); // مهلة قصيرة لضمان اكتمال الرسم
+  });
+}
+
+export async function generatePDFWithCharts({
+  totalHeuresTheo,
+  totalHeuresPrat,
+  totalHeuresTpSpec,
+  besoinTheoTotal,
+  besoinPratTotal,
+  besoinTpSpecTotal,
+  etatTheo,
+  etatPrat,
+  etatTpSpec,
+  testGlobal,
+}) {
   if (typeof window === 'undefined') return;
 
-  loadLogoMinistere((logoMinistere) => {
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
 
-    // --- الشعار ---
+  // تحميل الشعار
+  loadLogoMinistere((logoMinistere) => {
     let currentY = 10;
     const logoWidth = 90;
     const logoHeight = 15;
@@ -48,100 +96,60 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
 
     currentY += 12;
     pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
     pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
-    // --- معلومات عامة ---
-    const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
-    const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
-    const dateGeneration = new Date().toLocaleDateString();
-    pdf.setFontSize(11);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
-    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
-    pdf.text(`Date de génération : ${dateGeneration}`, 14, currentY + 22);
+    currentY += 20;
 
-    let tableStartY = currentY + 30;
-
-    // --- Synthèse des salles ---
-    pdf.setFontSize(13);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Synthèse des salles', 14, tableStartY);
-    tableStartY += 4;
-    autoTable(pdf, {
-      startY: tableStartY,
-      head: [['Type de salle', 'Nombre de salles', 'Moy. surface pédagogique', 'Nb max heures disponibles']],
-      body: sallesSummary,
-      styles: { fontSize: 9 },
-      theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] },
-      margin: { left: 14, right: 14 },
-      didDrawPage: (data) => {
-        tableStartY = data.cursor.y + 10;
+    // --- الرسوم البيانية ---
+    const charts = [
+      {
+        title: 'Théorique',
+        labels: ['Besoin', 'Total'],
+        data: [besoinTheoTotal, totalHeuresTheo],
+        color: etatTheo === 'Excédent' ? 'green' : 'red',
+        etat: etatTheo,
       },
+      {
+        title: 'Pratique',
+        labels: ['Besoin', 'Total'],
+        data: [besoinPratTotal, totalHeuresPrat],
+        color: etatPrat === 'Excédent' ? 'green' : 'red',
+        etat: etatPrat,
+      },
+      {
+        title: 'TP Spécifique',
+        labels: ['Besoin', 'Total'],
+        data: [besoinTpSpecTotal, totalHeuresTpSpec],
+        color: etatTpSpec === 'Excédent' ? 'green' : 'red',
+        etat: etatTpSpec,
+      },
+    ];
+
+    charts.forEach(async (chart, index) => {
+      const imgBase64 = await createChartImage(chart.labels, chart.data, chart.title, chart.color);
+      pdf.setFontSize(14);
+      pdf.text(chart.title, 14, currentY);
+      currentY += 5;
+
+      pdf.addImage(imgBase64, 'PNG', 20, currentY, 170, 100);
+      currentY += 105;
+
+      pdf.setFontSize(12);
+      pdf.setTextColor(chart.color === 'green' ? '0,128,0' : '255,0,0'); // أخضر أو أحمر
+      pdf.text(`État: ${chart.etat}`, 14, currentY);
+      currentY += 10;
     });
 
-    // --- Synthèse des apprenants ---
-    pdf.setFontSize(13);
+    // --- النتيجة النهائية ---
+    pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Synthèse des apprenants', 14, tableStartY);
-    const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
-    const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
-    tableStartY += 4;
-    autoTable(pdf, {
-      startY: tableStartY,
-      head: [apprenantsHeader],
-      body: apprenantsBody,
-      styles: { fontSize: 9 },
-      theme: 'grid',
-      headStyles: { fillColor: [39, 174, 96] },
-      margin: { left: 14, right: 14 },
-      didDrawPage: (data) => {
-        tableStartY = data.cursor.y + 10;
-      },
-    });
-
-    // --- Résultats ---
-    pdf.setFontSize(13);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Résultats', 14, tableStartY);
-
-    let resultatsHeader = [];
-    let resultatsBody = [];
-    if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows)) {
-      // حذف العمودين المطلوبين فقط من الجدول
-      const colonnesASupprimer = ["heures restantes", "apprenants possibles"];
-      const idxASupprimer = resultats.columns
-        .map((col, idx) =>
-          colonnesASupprimer.some(sup => col && col.trim().toLowerCase().includes(sup)) ? idx : -1
-        )
-        .filter(idx => idx !== -1);
-
-      resultatsHeader = resultats.columns.filter((_, idx) => !idxASupprimer.includes(idx));
-      resultatsBody = resultats.rows.map(row =>
-        row.filter((_, idx) => !idxASupprimer.includes(idx))
-      );
-    }
-
-    tableStartY += 4;
-    autoTable(pdf, {
-      startY: tableStartY,
-      head: [resultatsHeader],
-      body: resultatsBody,
-      styles: { fontSize: 10 },
-      theme: 'grid',
-      headStyles: { fillColor: [231, 76, 60] }, // أحمر
-      margin: { left: 8, right: 8 },
-      tableWidth: 'auto',
-      didDrawPage: (data) => {
-        tableStartY = data.cursor.y + 10;
-      },
-    });
+    pdf.setTextColor(testGlobal === 'Excédent' ? '0,128,0' : '255,0,0'); // أخضر أو أحمر
+    pdf.text(`Résultat Global: ${testGlobal}`, pageWidth / 2, currentY, { align: 'center' });
 
     // --- حفظ الملف ---
     const cleanTitle = "Rapport_de_diagnostic_de_la_capacité_d'accueil";
     const dateStr = new Date().toISOString().split('T')[0];
-    const fileName = `${cleanTitle}_${nomStructure.replace(/\s+/g, '_')}_${dateStr}.pdf`;
+    const fileName = `${cleanTitle}_${dateStr}.pdf`;
 
     pdf.save(fileName);
   });
