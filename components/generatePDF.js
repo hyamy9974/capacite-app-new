@@ -26,15 +26,15 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
 
-    // --- إعداد الشعار في الوسط مع مضاعفة الطول ---
+    // --- الشعار في الوسط ---
     let currentY = 10;
     const logoWidth = 90;
-    const logoHeight = 15; // مضاعفة الطول ليصبح الشعار أوضح
+    const logoHeight = 15;
     if (logoMinistere) {
       pdf.addImage(
         logoMinistere,
         'PNG',
-        (pageWidth - logoWidth) / 2, // في الوسط
+        (pageWidth - logoWidth) / 2,
         currentY,
         logoWidth,
         logoHeight
@@ -44,7 +44,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     // --- نص الإدارة العامة بالفرنسية تحت الشعار في الوسط وبحجم أصغر ---
     currentY += logoHeight + 3;
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(9); // أصغر من السابق
+    pdf.setFontSize(9);
     pdf.text(
       "Direction Générale de l'Inspection et de l'Audite Pédagogique",
       pageWidth / 2,
@@ -96,15 +96,20 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       },
     });
 
-    // --- جدول المتكونين (ملخص) ---
+    // --- جدول المتكونين (ملخص) بدون عمود Total général ---
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Synthèse des apprenants', 14, tableStartY);
+
+    // حذف عمود "Total général" من رأس الجدول وصفوفه
+    const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
+    const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
+
     tableStartY += 4;
     autoTable(pdf, {
       startY: tableStartY,
-      head: [['Spécialité', 'Total groupes', 'Total apprenants', 'Total général']],
-      body: apprenantsSummary,
+      head: [apprenantsHeader],
+      body: apprenantsBody,
       styles: { fontSize: 9 },
       theme: 'grid',
       headStyles: { fillColor: [39, 174, 96] },
@@ -114,18 +119,38 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       },
     });
 
-    // --- جدول النتائج (عريض) ---
+    // --- جدول النتائج من الصفحة مع حذف الأعمدة غير المرغوبة ---
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Tableau de résultats', 14, tableStartY);
+    pdf.text('Résultats', 14, tableStartY);
+
+    // تجهيز رأس وجدول النتائج مع حذف عمودي "Heures restantes" و "Apprenants possibles"
+    let resultatsHeader = [];
+    let resultatsBody = [];
+    if (resultatsTable && Array.isArray(resultatsTable.columns) && Array.isArray(resultatsTable.rows)) {
+      // البحث عن فهارس الأعمدة المحذوفة
+      const heuresRestantesIdx = resultatsTable.columns.findIndex(col =>
+        col.trim().toLowerCase().includes('heures restantes')
+      );
+      const apprenantsPossiblesIdx = resultatsTable.columns.findIndex(col =>
+        col.trim().toLowerCase().includes('apprenants possibles')
+      );
+      // بناء الأعمدة بدون المحذوفين
+      resultatsHeader = resultatsTable.columns
+        .filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx);
+      resultatsBody = resultatsTable.rows.map(row =>
+        row.filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx)
+      );
+    }
+
     tableStartY += 4;
     autoTable(pdf, {
       startY: tableStartY,
-      head: [resultatsTable.columns],
-      body: resultatsTable.rows,
+      head: [resultatsHeader],
+      body: resultatsBody,
       styles: { fontSize: 10 },
       theme: 'grid',
-      headStyles: { fillColor: [231, 76, 60] },
+      headStyles: { fillColor: [231, 76, 60] }, // أحمر كما هو الآن
       margin: { left: 8, right: 8 },
       tableWidth: 'auto',
     });
