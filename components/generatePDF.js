@@ -1,19 +1,18 @@
-// components/generatePDF.js
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export function generatePDF({ titre, tables }) {
-  if (typeof window === 'undefined') return; // Empêcher l'exécution côté serveur
+export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }) {
+  if (typeof window === 'undefined') return;
 
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
 
-  // Titre principal
+  // العنوان
   pdf.setFontSize(16);
   pdf.setFont('helvetica', 'bold');
-  pdf.text(titre, pageWidth / 2, 20, { align: 'center' });
+  pdf.text("Rapport de diagnostic actuel de la capacité d'accueil", pageWidth / 2, 20, { align: 'center' });
 
-  // Informations générales
+  // معلومات عامة
   const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
   const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
   const dateGeneration = new Date().toLocaleDateString();
@@ -26,29 +25,60 @@ export function generatePDF({ titre, tables }) {
 
   let currentY = 50;
 
-  // Parcours et affichage des tableaux
-  tables.forEach((table) => {
-    pdf.setFontSize(13);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(table.title, 14, currentY);
-    currentY += 4;
+  // جدول القاعات (ملخص)
+  pdf.setFontSize(13);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Synthèse des salles', 14, currentY);
+  currentY += 4;
+  autoTable(pdf, {
+    startY: currentY,
+    head: [['Type de salle', 'Nombre de salles', 'Moy. surface pédagogique', 'Nb max heures disponibles']],
+    body: sallesSummary,
+    styles: { fontSize: 9 },
+    theme: 'grid',
+    headStyles: { fillColor: [41, 128, 185] },
+    margin: { left: 14, right: 14 },
+    didDrawPage: (data) => {
+      currentY = data.cursor.y + 10;
+    },
+  });
 
-    autoTable(pdf, {
-      startY: currentY,
-      head: [table.columns],
-      body: table.rows,
-      styles: { fontSize: 9 },
-      theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185] },
-      margin: { left: 14, right: 14 },
-      didDrawPage: (data) => {
-        currentY = data.cursor.y + 10;
-      },
-    });
+  // جدول المتكونين (ملخص)
+  pdf.setFontSize(13);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Synthèse des apprenants', 14, currentY);
+  currentY += 4;
+  autoTable(pdf, {
+    startY: currentY,
+    head: [['Spécialité', 'Total groupes', 'Total apprenants', 'Total général']],
+    body: apprenantsSummary,
+    styles: { fontSize: 9 },
+    theme: 'grid',
+    headStyles: { fillColor: [39, 174, 96] },
+    margin: { left: 14, right: 14 },
+    didDrawPage: (data) => {
+      currentY = data.cursor.y + 10;
+    },
+  });
+
+  // جدول النتائج (عريض)
+  pdf.setFontSize(13);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Tableau de résultats', 14, currentY);
+  currentY += 4;
+  autoTable(pdf, {
+    startY: currentY,
+    head: [resultatsTable.columns],
+    body: resultatsTable.rows,
+    styles: { fontSize: 10 },
+    theme: 'grid',
+    headStyles: { fillColor: [231, 76, 60] },
+    margin: { left: 8, right: 8 }, // أجعل الجدول أعرض
+    tableWidth: 'auto',
   });
 
   // Enregistrement du fichier
-  const cleanTitle = titre.replace(/\s+/g, '_');
+  const cleanTitle = "Rapport_de_diagnostic_actuel_de_la_capacité_d'accueil";
   const dateStr = new Date().toISOString().split('T')[0];
   const fileName = `${cleanTitle}_${nomStructure.replace(/\s+/g, '_')}_${dateStr}.pdf`;
 
