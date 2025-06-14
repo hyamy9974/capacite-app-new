@@ -26,27 +26,44 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
 
-    // --- الشعار والنصوص العلوية ---
-    const marginTop = 10;
-    let currentY = marginTop;
-
+    // --- إعداد الشعار في الوسط مع مضاعفة الطول ---
+    let currentY = 10;
+    const logoWidth = 30;
+    const logoHeight = 50; // مضاعفة الطول ليصبح الشعار أوضح
     if (logoMinistere) {
-      pdf.addImage(logoMinistere, 'PNG', pageWidth - 45, currentY, 30, 25);
+      pdf.addImage(
+        logoMinistere,
+        'PNG',
+        (pageWidth - logoWidth) / 2, // في الوسط
+        currentY,
+        logoWidth,
+        logoHeight
+      );
     }
 
-    // الإدارة العامة تحت الشعار مباشرة (يمين الصفحة)
+    // --- نص الإدارة العامة بالفرنسية تحت الشعار في الوسط وبحجم أصغر ---
+    currentY += logoHeight + 3;
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(12);
-    pdf.text("Direction Générale de l'Inspection et de l'Audite Pédagogique", pageWidth - 48, currentY + 30, {
-      align: 'right'
-    });
+    pdf.setFontSize(10); // أصغر من السابق
+    pdf.text(
+      "Direction Générale de l'Inspection et de l'Audite Pédagogique",
+      pageWidth / 2,
+      currentY,
+      { align: 'center' }
+    );
 
-    currentY += 40;
+    // --- مسافة بين الشعار/الادارة والعنوان ---
+    currentY += 12;
 
     // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
+    pdf.text(
+      "Rapport de diagnostic de la capacité d'accueil",
+      pageWidth / 2,
+      currentY,
+      { align: 'center' }
+    );
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
