@@ -148,7 +148,7 @@ export async function generatePDFWithCharts({
     pdf.setTextColor(testGlobal === 'Excédent' ? '0,128,0' : '255,0,0'); // أخضر أو أحمر
     pdf.text(`Résultat Global: ${testGlobal}`, pageWidth / 2, currentY, { align: 'center' });
 
-    // --- حفظ الملف ---
+    // -- حفظ الملف --
     const cleanTitle = "Rapport_de_diagnostic_de_la_capacité_d'accueil";
     const dateStr = new Date().toISOString().split('T')[0];
     const fileName = `${cleanTitle}_${dateStr}.pdf`;
