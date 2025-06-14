@@ -45,7 +45,6 @@ export default function TDA() {
 
   const specialties = useSpecialties();
 
-  // تحميل البيانات من localStorage عند التشغيل
   useEffect(() => {
     const saved = localStorage.getItem("tdaData");
     if (saved) {
@@ -56,7 +55,6 @@ export default function TDA() {
     }
   }, []);
 
-  // ملخصات القاعات
   const totalHeuresTheo = somme(salles.theorie.map(s => Number(s.heuresMax) || 0));
   const totalHeuresPrat = somme(salles.pratique.map(s => Number(s.heuresMax) || 0));
   const totalHeuresTpSpec = somme(salles.tpSpecifiques.map(s => Number(s.heuresMax) || 0));
@@ -95,14 +93,12 @@ export default function TDA() {
     });
   };
 
-  // حفظ البيانات في localStorage
   const handleSave = () => {
     const data = { salles, effectif, repartition };
     localStorage.setItem("tdaData", JSON.stringify(data));
     alert("Les données ont été enregistrées !");
   };
 
-  // إعادة التهيئة
   const handleReset = () => {
     localStorage.removeItem("tdaData");
     setSalles({
@@ -122,15 +118,12 @@ export default function TDA() {
     alert("Les données ont été réinitialisées.");
   };
 
-  // توليد بيانات الجداول للطباعة PDF
-  // --- بناء ملخصات جديدة حسب طلبك ---
   const sallesSummary = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
     ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
     ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
   ];
 
-  // حساب مجموع الأفواج والمتكونين
   const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
   const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
   const apprenantsSummary = [
@@ -138,7 +131,6 @@ export default function TDA() {
     ["Total", totalGroupes, totalApprenants, totalGroupes + totalApprenants]
   ];
 
-  // جدول النتائج
   const resultatsTable = {
     columns: [
       "Total Heures Théorie", "Total Heures Pratique", "Total Heures TP Spécifiques",
@@ -199,20 +191,18 @@ export default function TDA() {
         />
         <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
       </div>
-
-      {/* الأزرار في صف أفقي */}
       <div className="flex flex-wrap justify-center gap-4 mt-10">
         <button
           onClick={() => window.location.href = "/"}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          ⬅️ Page d&apos;accueil
+          ↩️ Page d'accueil
         </button>
         <button
           onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
-          🧾 Générer le PDF
+          📄 Générer le PDF
         </button>
         <button
           onClick={handleSave}
