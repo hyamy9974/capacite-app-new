@@ -1,7 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// تحميل صورة الشعار (base64) من public/logo.png
 function loadLogoMinistere(callback) {
   const img = new window.Image();
   img.src = '/logo.png';
@@ -26,7 +25,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
 
-    // --- الشعار في الوسط ---
+    // --- الشعار ---
     let currentY = 10;
     const logoWidth = 90;
     const logoHeight = 15;
@@ -41,35 +40,20 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       );
     }
 
-    // --- نص الإدارة العامة بالفرنسية تحت الشعار في الوسط وبحجم أصغر ---
     currentY += logoHeight + 3;
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(9);
-    pdf.text(
-      "Direction Générale de l'Inspection et de l'Audite Pédagogique",
-      pageWidth / 2,
-      currentY,
-      { align: 'center' }
-    );
+    pdf.text("Direction Générale de l'Inspection et de l'Audite Pédagogique", pageWidth / 2, currentY, { align: 'center' });
 
-    // --- مسافة بين الشعار/الادارة والعنوان ---
     currentY += 12;
-
-    // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(
-      "Rapport de diagnostic de la capacité d'accueil",
-      pageWidth / 2,
-      currentY,
-      { align: 'center' }
-    );
+    pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     const dateGeneration = new Date().toLocaleDateString();
-
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
@@ -78,7 +62,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
 
     let tableStartY = currentY + 30;
 
-    // --- جدول القاعات (ملخص) ---
+    // --- Synthèse des salles ---
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Synthèse des salles', 14, tableStartY);
@@ -96,14 +80,12 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       },
     });
 
-    // --- جدول المتكونين (ملخص) بدون عمود Total général ---
+    // --- Synthèse des apprenants --- (بدون Total général)
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Synthèse des apprenants', 14, tableStartY);
-
     const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
     const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
-
     tableStartY += 4;
     autoTable(pdf, {
       startY: tableStartY,
@@ -118,12 +100,12 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       },
     });
 
-    // --- جدول النتائج (Résultats) بنفس طريقة الجداول الأخرى ---
+    // --- Résultats (بالطريقة الصحيحة) ---
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Résultats', 14, tableStartY);
 
-    // حذف عمودي "Heures restantes" و"Apprenants possibles" من رأس الجدول وصفوفه
+    // حذف العمودين المطلوبين من header/body كما تفعل مع الجداول الأخرى
     let resultatsHeader = [];
     let resultatsBody = [];
     if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows)) {
@@ -139,8 +121,9 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
         row.filter((_, idx) => !idxASupprimer.includes(idx))
       );
     }
-
     tableStartY += 4;
+
+    // دائما اعرض الجدول حتى لو كان فارغ مثل الجداول الأخرى (لا رسالة خطأ)
     autoTable(pdf, {
       startY: tableStartY,
       head: [resultatsHeader],
