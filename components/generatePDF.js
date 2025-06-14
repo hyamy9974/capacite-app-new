@@ -19,7 +19,13 @@ function loadLogoMinistere(callback) {
   };
 }
 
-export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }) {
+/**
+ * params:
+ * - sallesSummary: array of arrays
+ * - apprenantsSummary: array of arrays
+ * - resultats: { columns: [], rows: [[]] }  ← جدول النتائج من الصفحة مباشرة
+ */
+export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
   if (typeof window === 'undefined') return;
 
   loadLogoMinistere((logoMinistere) => {
@@ -119,26 +125,26 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       },
     });
 
-    // --- جدول النتائج من الصفحة مع حذف الأعمدة غير المرغوبة ---
+    // --- جدول النتائج: البيانات الحقيقية بدون Heures restantes و Apprenants possibles ---
     pdf.setFontSize(13);
     pdf.setFont('helvetica', 'bold');
     pdf.text('Résultats', 14, tableStartY);
 
-    // تجهيز رأس وجدول النتائج مع حذف عمودي "Heures restantes" و "Apprenants possibles"
+    // تجهيز رأس وجدول النتائج مع حذف العمودين غير المرغوبين
     let resultatsHeader = [];
     let resultatsBody = [];
-    if (resultatsTable && Array.isArray(resultatsTable.columns) && Array.isArray(resultatsTable.rows)) {
+    if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows)) {
       // البحث عن فهارس الأعمدة المحذوفة
-      const heuresRestantesIdx = resultatsTable.columns.findIndex(col =>
+      const heuresRestantesIdx = resultats.columns.findIndex(col =>
         col.trim().toLowerCase().includes('heures restantes')
       );
-      const apprenantsPossiblesIdx = resultatsTable.columns.findIndex(col =>
+      const apprenantsPossiblesIdx = resultats.columns.findIndex(col =>
         col.trim().toLowerCase().includes('apprenants possibles')
       );
       // بناء الأعمدة بدون المحذوفين
-      resultatsHeader = resultatsTable.columns
+      resultatsHeader = resultats.columns
         .filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx);
-      resultatsBody = resultatsTable.rows.map(row =>
+      resultatsBody = resultats.rows.map(row =>
         row.filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx)
       );
     }
