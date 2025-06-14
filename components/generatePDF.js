@@ -2,21 +2,23 @@ import jsPDF from 'jspdf';
 import Chart from 'chart.js/auto';
 
 // تحميل صورة الشعار (base64) من public/logo.png
-function loadLogoMinistere(callback) {
-  const img = new window.Image();
-  img.src = '/logo.png';
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    const base64 = canvas.toDataURL('image/png');
-    callback(base64);
-  };
-  img.onerror = () => {
-    callback(null);
-  };
+function loadLogoMinistere() {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.src = '/logo.png';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const base64 = canvas.toDataURL('image/png');
+      resolve(base64);
+    };
+    img.onerror = () => {
+      reject('Failed to load logo image');
+    };
+  });
 }
 
 // إنشاء رسم بياني وتحويله إلى صورة Base64
@@ -48,7 +50,6 @@ async function createChartImage(labels, data, title, color) {
     },
   });
 
-  // ننتظر الرسم البياني ليتم إنشاؤه
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(canvas.toDataURL('image/png'));
@@ -72,10 +73,11 @@ export async function generatePDFWithCharts({
 
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
+  let currentY = 10;
 
-  // تحميل الشعار
-  loadLogoMinistere((logoMinistere) => {
-    let currentY = 10;
+  try {
+    // --- تحميل الشعار ---
+    const logoMinistere = await loadLogoMinistere();
     const logoWidth = 90;
     const logoHeight = 15;
     if (logoMinistere) {
@@ -125,7 +127,7 @@ export async function generatePDFWithCharts({
       },
     ];
 
-    charts.forEach(async (chart, index) => {
+    for (const chart of charts) {
       const imgBase64 = await createChartImage(chart.labels, chart.data, chart.title, chart.color);
       pdf.setFontSize(14);
       pdf.text(chart.title, 14, currentY);
@@ -138,7 +140,7 @@ export async function generatePDFWithCharts({
       pdf.setTextColor(chart.color === 'green' ? '0,128,0' : '255,0,0'); // أخضر أو أحمر
       pdf.text(`État: ${chart.etat}`, 14, currentY);
       currentY += 10;
-    });
+    }
 
     // --- النتيجة النهائية ---
     pdf.setFontSize(16);
@@ -152,5 +154,8 @@ export async function generatePDFWithCharts({
     const fileName = `${cleanTitle}_${dateStr}.pdf`;
 
     pdf.save(fileName);
-  });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('حدث خطأ أثناء توليد التقرير. يرجى المحاولة مرة أخرى.');
+  }
 }
