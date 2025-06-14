@@ -139,7 +139,7 @@ export default function TDP() {
       setEffectif(parsed.effectif || effectif);
       setRepartition(parsed.repartition || repartition);
     }
-  }, []);
+  }, [salles, cnos, semaines, heures, apprenants, effectif, repartition]);
 
   const sallesSummary = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
@@ -220,7 +220,7 @@ export default function TDP() {
           onClick={() => window.location.href = "/"}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          ↩️ Page d'accueil
+          ↩️ Page d&apos;accueil
         </button>
         <button
           onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}

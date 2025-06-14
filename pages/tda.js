@@ -196,7 +196,7 @@ export default function TDA() {
           onClick={() => window.location.href = "/"}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
-          ↩️ Page d'accueil
+          ↩️ Page d&apos;accueil
         </button>
         <button
           onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}
