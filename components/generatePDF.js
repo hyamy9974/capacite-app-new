@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// تحميل صورة الشعار (base64) من public/logo.png
+// تحميل الشعار
 function loadLogoMinistere(callback) {
   const img = new window.Image();
   img.src = '/logo.png';
@@ -19,12 +19,6 @@ function loadLogoMinistere(callback) {
   };
 }
 
-/**
- * params:
- * - sallesSummary: array of arrays
- * - apprenantsSummary: array of arrays
- * - resultats: { columns: [], rows: [[]] }  ← جدول النتائج من الصفحة مباشرة
- */
 export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
   if (typeof window === 'undefined') return;
 
@@ -32,7 +26,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pageWidth = pdf.internal.pageSize.getWidth();
 
-    // --- الشعار في الوسط ---
+    // --- الشعار والنصوص ---
     let currentY = 10;
     const logoWidth = 90;
     const logoHeight = 15;
@@ -47,7 +41,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       );
     }
 
-    // --- نص الإدارة العامة بالفرنسية تحت الشعار في الوسط وبحجم أصغر ---
     currentY += logoHeight + 3;
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(9);
@@ -58,10 +51,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       { align: 'center' }
     );
 
-    // --- مسافة بين الشعار/الادارة والعنوان ---
     currentY += 12;
 
-    // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
     pdf.text(
@@ -71,7 +62,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       { align: 'center' }
     );
 
-    // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     const dateGeneration = new Date().toLocaleDateString();
@@ -107,7 +97,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     pdf.setFont('helvetica', 'bold');
     pdf.text('Synthèse des apprenants', 14, tableStartY);
 
-    // حذف عمود "Total général" من رأس الجدول وصفوفه
     const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
     const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
 
@@ -133,33 +122,46 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     // تجهيز رأس وجدول النتائج مع حذف العمودين غير المرغوبين
     let resultatsHeader = [];
     let resultatsBody = [];
+
     if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows)) {
-      // البحث عن فهارس الأعمدة المحذوفة
-      const heuresRestantesIdx = resultats.columns.findIndex(col =>
-        col.trim().toLowerCase().includes('heures restantes')
-      );
-      const apprenantsPossiblesIdx = resultats.columns.findIndex(col =>
-        col.trim().toLowerCase().includes('apprenants possibles')
-      );
+      // البحث عن الأعمدة التي يجب حذفها
+      const toRemove = ['heures restantes', 'apprenants possibles'];
+      const removeIdxs = resultats.columns
+        .map((col, idx) => (toRemove.some(r => col.trim().toLowerCase().includes(r)) ? idx : -1))
+        .filter(idx => idx !== -1);
+
       // بناء الأعمدة بدون المحذوفين
       resultatsHeader = resultats.columns
-        .filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx);
+        .filter((_, idx) => !removeIdxs.includes(idx));
       resultatsBody = resultats.rows.map(row =>
-        row.filter((_, idx) => idx !== heuresRestantesIdx && idx !== apprenantsPossiblesIdx)
+        row.filter((_, idx) => !removeIdxs.includes(idx))
       );
     }
 
     tableStartY += 4;
-    autoTable(pdf, {
-      startY: tableStartY,
-      head: [resultatsHeader],
-      body: resultatsBody,
-      styles: { fontSize: 10 },
-      theme: 'grid',
-      headStyles: { fillColor: [231, 76, 60] }, // أحمر كما هو الآن
-      margin: { left: 8, right: 8 },
-      tableWidth: 'auto',
-    });
+
+    // إذا بقيت أعمدة على الأقل نطبع الجدول، وإلا نكتب رسالة
+    if (resultatsHeader.length > 0 && resultatsBody.length > 0) {
+      autoTable(pdf, {
+        startY: tableStartY,
+        head: [resultatsHeader],
+        body: resultatsBody,
+        styles: { fontSize: 10 },
+        theme: 'grid',
+        headStyles: { fillColor: [231, 76, 60] }, // أحمر كما هو الآن
+        margin: { left: 8, right: 8 },
+        tableWidth: 'auto',
+      });
+    } else {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'italic');
+      pdf.text(
+        'Aucun résultat à afficher.',
+        pageWidth / 2,
+        tableStartY + 10,
+        { align: 'center' }
+      );
+    }
 
     // --- حفظ الملف ---
     const cleanTitle = "Rapport_de_diagnostic_de_la_capacité_d'accueil";
