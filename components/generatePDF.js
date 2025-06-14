@@ -1,10 +1,10 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// تحميل صورة الشعار (base64) من public/logo-ministere.png
+// تحميل صورة الشعار (base64) من public/logo.png
 function loadLogoMinistere(callback) {
   const img = new window.Image();
-  img.src = '/logo-ministere.png';
+  img.src = '/logo.png';
   img.onload = () => {
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
@@ -37,7 +37,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     // الإدارة العامة تحت الشعار مباشرة (يمين الصفحة)
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(12);
-    pdf.text("الإدارة العامة للتفقد والتدقيق البيداغوجي", pageWidth - 48, currentY + 30, {
+    pdf.text("Direction Générale de l'Inspection et de l'Audite Pédagogique", pageWidth - 48, currentY + 30, {
       align: 'right'
     });
 
