@@ -122,6 +122,59 @@ export default function TDA() {
     alert("Les données ont été réinitialisées.");
   };
 
+  // توليد بيانات الجداول للطباعة PDF
+  const buildPDFTables = () => [
+    {
+      title: "Résumé des salles",
+      columns: ["Type", "Surface", "CNO", "Semaines", "Heures", "SurfaceP", "Heures Max"],
+      rows: [
+        ...salles.theorie.map(s => ["Théorie", s.surface, s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax]),
+        ...salles.pratique.map(s => ["Pratique", s.surface, s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax]),
+        ...salles.tpSpecifiques.map(s => ["TP Spécifiques", s.surface, s.cno, s.semaines, s.heures, s.surfaceP, s.heuresMax]),
+      ]
+    },
+    {
+      title: "Effectif Actuel",
+      columns: ["Spécialité", "Groupes", "Apprenants"],
+      rows: effectif.map(e => [e.specialite, e.groupes, e.apprenants])
+    },
+    {
+      title: "Répartition actuelle des heures",
+      columns: ["Besoin Théorie", "Besoin Pratique", "Besoin TP Spécifiques", "Moyenne Théorie", "Moyenne Pratique", "Moyenne TP Spécifiques"],
+      rows: [[
+        repartition.besoinTheoTotal,
+        repartition.besoinPratTotal,
+        repartition.besoinTpSpecTotal,
+        repartition.moyenneTheo,
+        repartition.moyennePrat,
+        repartition.moyenneTpSpec
+      ]]
+    },
+    {
+      title: "Résultat",
+      columns: [
+        "Total Heures Théorie", "Total Heures Pratique", "Total Heures TP Spécifiques",
+        "Besoin Théorie", "Besoin Pratique", "Besoin TP Spécifiques",
+        "Moyenne Besoin Théorie", "Moyenne Besoin Pratique", "Moyenne Besoin TP Spécifiques",
+        "Moyenne Surface Théorie", "Moyenne Surface Pratique", "Moyenne Surface TP Spécifiques"
+      ],
+      rows: [[
+        resultatsData.totalHeuresTheo,
+        resultatsData.totalHeuresPrat,
+        resultatsData.totalHeuresTpSpec,
+        resultatsData.besoinTheoTotal,
+        resultatsData.besoinPratTotal,
+        resultatsData.besoinTpSpecTotal,
+        resultatsData.moyenneBesoinTheo,
+        resultatsData.moyenneBesoinPrat,
+        resultatsData.moyenneBesoinTpSpec,
+        resultatsData.moyenneSurfaceTheo,
+        resultatsData.moyenneSurfacePrat,
+        resultatsData.moyenneSurfaceTpSpec
+      ]]
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div ref={pdfRef}>
@@ -169,7 +222,7 @@ export default function TDA() {
           ⬅️ Page d&apos;accueil
         </button>
         <button
-          onClick={() => generatePDF({ titre: "Test de Dépassement Actuel", ref: pdfRef })}
+          onClick={() => generatePDF({ titre: "Test de Dépassement Actuel", tables: buildPDFTables() })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           🧾 Générer le PDF
