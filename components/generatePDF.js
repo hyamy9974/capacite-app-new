@@ -26,37 +26,17 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     return;
   }
 
-  alert('✅ بدأ توليد ملف PDF.');
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
 
+  // --- تحميل الشعار ووضعه ---
   loadLogoMinistere((logoMinistere) => {
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-
-    // --- الشعار ---
     let currentY = 10;
-    const logoWidth = 90;
-    const logoHeight = 15;
     if (logoMinistere) {
-      pdf.addImage(
-        logoMinistere,
-        'PNG',
-        (pageWidth - logoWidth) / 2,
-        currentY,
-        logoWidth,
-        logoHeight
-      );
-    } else {
-      alert('⚠️ لم يتم تحميل الشعار، سيتم متابعة التوليد بدون الشعار.');
+      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 15);
     }
-
-    currentY += logoHeight + 3;
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(9);
-    pdf.text("Direction Générale de l'Inspection et de l'Audite Pédagogique", pageWidth / 2, currentY, { align: 'center' });
-
-    currentY += 12;
+    currentY += 20;
     pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
     pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
     // --- معلومات عامة ---
@@ -64,18 +44,15 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     const dateGeneration = new Date().toLocaleDateString();
     pdf.setFontSize(11);
-    pdf.setFont('helvetica', 'normal');
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
     pdf.text(`Date de génération : ${dateGeneration}`, 14, currentY + 22);
 
     let tableStartY = currentY + 30;
 
-    // --- Synthèse des salles ---
+    // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
-      alert('✅ تم العثور على بيانات ملخص القاعات.');
       pdf.setFontSize(13);
-      pdf.setFont('helvetica', 'bold');
       pdf.text('Synthèse des salles', 14, tableStartY);
       tableStartY += 4;
       autoTable(pdf, {
@@ -86,19 +63,15 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
         theme: 'grid',
         headStyles: { fillColor: [41, 128, 185] },
         margin: { left: 14, right: 14 },
-        didDrawPage: (data) => {
-          tableStartY = data.cursor.y + 10;
-        },
       });
+      tableStartY += 10;
     } else {
       alert('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
 
-    // --- Synthèse des apprenants ---
+    // --- ملخص المتعلمين ---
     if (apprenantsSummary && apprenantsSummary.length > 0) {
-      alert('✅ تم العثور على بيانات ملخص المتعلمين.');
       pdf.setFontSize(13);
-      pdf.setFont('helvetica', 'bold');
       pdf.text('Synthèse des apprenants', 14, tableStartY);
       const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
       const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
@@ -111,60 +84,39 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
         theme: 'grid',
         headStyles: { fillColor: [39, 174, 96] },
         margin: { left: 14, right: 14 },
-        didDrawPage: (data) => {
-          tableStartY = data.cursor.y + 10;
-        },
       });
+      tableStartY += 10;
     } else {
       alert('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- Résultats ---
+    // --- النتائج ---
     if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows)) {
-      alert('✅ تم العثور على بيانات النتائج.');
       pdf.setFontSize(13);
-      pdf.setFont('helvetica', 'bold');
       pdf.text('Résultats', 14, tableStartY);
-
-      let resultatsHeader = [];
-      let resultatsBody = [];
-      const colonnesASupprimer = ["heures restantes", "apprenants possibles"];
-      const idxASupprimer = resultats.columns
-        .map((col, idx) =>
-          colonnesASupprimer.some(sup => col && col.trim().toLowerCase().includes(sup)) ? idx : -1
-        )
-        .filter(idx => idx !== -1);
-
-      resultatsHeader = resultats.columns.filter((_, idx) => !idxASupprimer.includes(idx));
-      resultatsBody = resultats.rows.map(row =>
-        row.filter((_, idx) => !idxASupprimer.includes(idx))
-      );
-
-      tableStartY += 4;
       autoTable(pdf, {
-        startY: tableStartY,
-        head: [resultatsHeader],
-        body: resultatsBody,
+        startY: tableStartY + 5,
+        head: [resultats.columns],
+        body: resultats.rows,
         styles: { fontSize: 10 },
         theme: 'grid',
-        headStyles: { fillColor: [231, 76, 60] }, // أحمر
-        margin: { left: 8, right: 8 },
-        tableWidth: 'auto',
-        didDrawPage: (data) => {
-          tableStartY = data.cursor.y + 10;
-        },
+        headStyles: { fillColor: [231, 76, 60] },
       });
     } else {
-      alert('⚠️ لم يتم العثور على بيانات النتائج.');
+      alert('⚠️ لم يتم العثور على بيانات النتائج. سيتم إدراج جدول فارغ.');
+      autoTable(pdf, {
+        startY: tableStartY + 5,
+        head: [['Aucune donnée disponible']],
+        body: [['Pas de données']],
+        styles: { fontSize: 10 },
+        theme: 'grid',
+        headStyles: { fillColor: [231, 76, 60] },
+      });
     }
 
     // --- حفظ الملف ---
-    alert('✅ يتم الآن حفظ الملف.');
-    const cleanTitle = "Rapport_de_diagnostic_de_la_capacité_d'accueil";
+    const cleanTitle = "Rapport_de_diagnostic";
     const dateStr = new Date().toISOString().split('T')[0];
-    const fileName = `${cleanTitle}_${nomStructure.replace(/\s+/g, '_')}_${dateStr}.pdf`;
-
-    pdf.save(fileName);
-    alert('✅ تم حفظ ملف PDF بنجاح.');
+    pdf.save(`${cleanTitle}_${dateStr}.pdf`);
   });
 }
