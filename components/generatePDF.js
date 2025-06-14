@@ -28,8 +28,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- إعداد الشعار في الوسط مع مضاعفة الطول ---
     let currentY = 10;
-    const logoWidth = 30;
-    const logoHeight = 50; // مضاعفة الطول ليصبح الشعار أوضح
+    const logoWidth = 50;
+    const logoHeight = 20; // مضاعفة الطول ليصبح الشعار أوضح
     if (logoMinistere) {
       pdf.addImage(
         logoMinistere,
