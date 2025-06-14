@@ -28,7 +28,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- إعداد الشعار في الوسط مع مضاعفة الطول ---
     let currentY = 10;
-    const logoWidth = 50;
+    const logoWidth = 80;
     const logoHeight = 20; // مضاعفة الطول ليصبح الشعار أوضح
     if (logoMinistere) {
       pdf.addImage(
@@ -44,7 +44,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     // --- نص الإدارة العامة بالفرنسية تحت الشعار في الوسط وبحجم أصغر ---
     currentY += logoHeight + 3;
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(10); // أصغر من السابق
+    pdf.setFontSize(8); // أصغر من السابق
     pdf.text(
       "Direction Générale de l'Inspection et de l'Audite Pédagogique",
       pageWidth / 2,
