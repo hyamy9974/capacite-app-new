@@ -102,36 +102,23 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- النتائج ---
-    if (
-      resultats &&
-      Array.isArray(resultats.columns) &&
-      Array.isArray(resultats.rows) &&
-      resultats.columns.length > 0 &&
-      resultats.rows.length > 0
-    ) {
+    // --- ملخص النتائج ---
+    if (resultats && resultats.length > 0) {
       pdf.setFontSize(13);
-      pdf.text('Résultats', 14, tableStartY);
+      pdf.text('Synthèse des résultats', 14, tableStartY);
+      tableStartY += 4;
       autoTable(pdf, {
-        startY: tableStartY + 5,
-        head: [resultats.columns],
-        body: resultats.rows,
-        styles: { fontSize: 10 },
+        startY: tableStartY,
+        head: [['Critère', 'Valeur']],
+        body: resultats,
+        styles: { fontSize: 9 },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
+        margin: { left: 14, right: 14 },
       });
+      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
     } else {
-      console.warn('⚠️ لم يتم العثور على بيانات النتائج. سيتم إدراج جدول فارغ.');
-      pdf.setFontSize(13);
-      pdf.text('Résultats (Pas de données disponibles)', 14, tableStartY);
-      autoTable(pdf, {
-        startY: tableStartY + 5,
-        head: [['Aucune donnée disponible']],
-        body: [['Pas de données disponibles']],
-        styles: { fontSize: 10 },
-        theme: 'grid',
-        headStyles: { fillColor: [231, 76, 60] },
-      });
+      console.warn('⚠️ لم يتم العثور على بيانات النتائج.');
     }
 
     // --- حفظ الملف ---
