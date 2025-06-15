@@ -20,7 +20,7 @@ function loadLogoMinistere(callback) {
   };
 }
 
-export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary, finalSummary }) {
+export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }) {
   if (typeof window === 'undefined') {
     alert('⚠️ لا يمكن توليد PDF - يتم تنفيذ الكود خارج المتصفح.');
     return;
@@ -103,15 +103,14 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary
     }
 
     // --- ملخص النتائج ---
-    if (resultatsSummary && resultatsSummary.length > 0) {
+    if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
-      const resultatsHeader = ['Critère', 'Valeur'];
       tableStartY += 4;
       autoTable(pdf, {
         startY: tableStartY,
-        head: [resultatsHeader],
-        body: resultatsSummary,
+        head: [resultatsTable.columns],
+        body: resultatsTable.rows,
         styles: { fontSize: 9 },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
@@ -120,12 +119,11 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary
       tableStartY = pdf.lastAutoTable.finalY + 5; // إضافة مسافة بين الجدول والنتيجة النهائية
 
       // --- النتيجة النهائية ---
-      if (finalSummary) {
-        const { label, color } = finalSummary;
-        pdf.setFontSize(11);
-        pdf.setTextColor(color === 'red' ? 255 : 0, color === 'red' ? 0 : 128, 0); // أحمر أو أخضر
-        pdf.text(label, 14, tableStartY + 6);
-      }
+      const finalResult = resultatsTable.rows[resultatsTable.rows.length - 1][resultatsTable.columns.length - 1];
+      const finalColor = finalResult === 'Excédent' ? [0, 128, 0] : [255, 0, 0]; // أخضر أو أحمر
+      pdf.setFontSize(11);
+      pdf.setTextColor(...finalColor);
+      pdf.text(`Résultat global : ${finalResult}`, 14, tableStartY + 6);
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
