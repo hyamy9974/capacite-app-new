@@ -100,7 +100,7 @@ export default function TDP() {
       besoinTpSpecTotal: r.besoinTpSpecTotal ?? 0,
       moyenneTheo: r.besoinTheoParGroupe ?? 0,
       moyennePrat: r.besoinPratParGroupe ?? 0,
-      moyenneTpSpec: r.moyenneTpSpecParGroupe ?? 0,
+      moyenneTpSpec: r.besoinTpSpecParGroupe ?? 0,
     });
   };
 

@@ -66,7 +66,7 @@ export default function TableauRepartition({ effectifData, specialties, onDataCh
           besoinTpSpecTotal: sumBesoinTpSpecParSpec,
           besoinTheoParGroupe: Number(avgBesoinTheoParGroupe),
           besoinPratParGroupe: Number(avgBesoinPratParGroupe),
-          besoinTpSpecParGroupe: Number(avgBesoinTpSpecParGroupe),
+          besoinTpSpecParGroupe: Number(avgBesoinTpSpecParGroupe), // تم التأكد من تمرير القيمة بشكل صحيح
         }
       ]);
     }
