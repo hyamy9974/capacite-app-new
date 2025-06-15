@@ -15,7 +15,7 @@ function loadLogoMinistere(callback) {
     callback(base64);
   };
   img.onerror = () => {
-    alert('⚠️ فشل تحميل الشعار من المسار: /logo.png');
+    console.warn('⚠️ فشل تحميل الشعار من المسار: /logo.png');
     callback(null);
   };
 }
@@ -66,7 +66,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       });
       tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
     } else {
-      alert('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
+      console.warn('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
 
     // --- ملخص المتعلمين ---
@@ -87,7 +87,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       });
       tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
     } else {
-      alert('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
+      console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
     // --- النتائج ---
@@ -103,11 +103,11 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
         headStyles: { fillColor: [231, 76, 60] },
       });
     } else {
-      alert('⚠️ لم يتم العثور على بيانات النتائج. سيتم إدراج جدول فارغ.');
+      console.warn('⚠️ لم يتم العثور على بيانات النتائج. سيتم إدراج جدول فارغ.');
       autoTable(pdf, {
         startY: tableStartY + 5,
-        head: [['Aucune donnée disponible']],
-        body: [['Pas de données']],
+        head: [['Colonnes']],
+        body: [['Pas de données disponibles']],
         styles: { fontSize: 10 },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
