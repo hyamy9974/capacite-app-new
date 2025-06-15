@@ -20,7 +20,7 @@ function loadLogoMinistere(callback) {
   };
 }
 
-export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary }) {
+export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary, finalSummary }) {
   if (typeof window === 'undefined') {
     alert('⚠️ لا يمكن توليد PDF - يتم تنفيذ الكود خارج المتصفح.');
     return;
@@ -117,7 +117,15 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsSummary
         headStyles: { fillColor: [231, 76, 60] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
+      tableStartY = pdf.lastAutoTable.finalY + 5; // إضافة مسافة بين الجدول والنتيجة النهائية
+
+      // --- النتيجة النهائية ---
+      if (finalSummary) {
+        const { label, color } = finalSummary;
+        pdf.setFontSize(11);
+        pdf.setTextColor(color === 'red' ? 255 : 0, color === 'red' ? 0 : 128, 0); // أحمر أو أخضر
+        pdf.text(label, 14, tableStartY + 6);
+      }
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }

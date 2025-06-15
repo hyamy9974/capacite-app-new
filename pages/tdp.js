@@ -6,6 +6,7 @@ import TableauResultats from "../components/TableauResultats";
 import useSpecialties from "../components/useSpecialties";
 import { generatePDF } from "../components/generatePDF";
 
+// دوال مساعدة مباشرة
 const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 const somme = arr => arr.reduce((a, b) => a + b, 0);
 
@@ -159,7 +160,8 @@ export default function TDP() {
       "Total Heures Théorie", "Total Heures Pratique", "Total Heures TP Spécifiques",
       "Besoin Théorie", "Besoin Pratique", "Besoin TP Spécifiques",
       "Moyenne Besoin Théorie", "Moyenne Besoin Pratique", "Moyenne Besoin TP Spécifiques",
-      "Moyenne Surface Théorie", "Moyenne Surface Pratique", "Moyenne Surface TP Spécifiques"
+      "Moyenne Surface Théorie", "Moyenne Surface Pratique", "Moyenne Surface TP Spécifiques",
+      "Résultat Final"
     ],
     rows: [[
       resultatsData.totalHeuresTheo,
@@ -173,7 +175,8 @@ export default function TDP() {
       resultatsData.moyenneBesoinTpSpec,
       resultatsData.moyenneSurfaceTheo,
       resultatsData.moyenneSurfacePrat,
-      resultatsData.moyenneSurfaceTpSpec
+      resultatsData.moyenneSurfaceTpSpec,
+      resultatsData.totalHeuresTheo > resultatsData.besoinTheoTotal ? "Excédent" : "Dépassement"
     ]]
   };
 
