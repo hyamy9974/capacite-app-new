@@ -78,11 +78,13 @@ export default function TableauResultats({ data }) {
               {etatTpSpec}
             </td>
           </tr>
+          {/* السطر الأخير */}
+          <tr className="font-bold">
+            <td className="border p-2 text-center" colSpan="3">Résultat Global</td>
+            <td className={`border p-2 text-center ${couleurGlobal}`}>{testGlobal}</td>
+          </tr>
         </tbody>
       </table>
-      <div className={`text-center font-bold ${couleurGlobal}`}>
-        {testGlobal}
-      </div>
     </div>
   );
 }
