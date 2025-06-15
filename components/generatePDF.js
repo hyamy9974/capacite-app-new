@@ -36,6 +36,13 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 15);
     }
     currentY += 20;
+
+    // --- إضافة الإدارة العامة تحت الشعار ---
+    pdf.setFontSize(12);
+    pdf.text("الإدارة العامة", pageWidth / 2, currentY, { align: 'center' });
+    currentY += 10; // مسافة فاصلة بين الإدارة العامة والعنوان الرئيسي
+
+    // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
     pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
