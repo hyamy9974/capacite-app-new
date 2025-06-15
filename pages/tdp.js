@@ -140,7 +140,7 @@ export default function TDP() {
       setEffectif(parsed.effectif || effectif);
       setRepartition(parsed.repartition || repartition);
     }
-  }, [salles, cnos, semaines, heures, apprenants, effectif, repartition]);
+  }, []);
 
   const sallesSummary = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],

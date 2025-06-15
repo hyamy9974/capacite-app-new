@@ -5,11 +5,14 @@ import TableauRepartition from "../components/TableauRepartition";
 import TableauResultats from "../components/TableauResultats";
 import useSpecialties from "../components/useSpecialties";
 import { generatePDF } from "../components/generatePDF";
+import {
+  calculerHeuresRestantes,
+  calculerApprenantsPossibles,
+  determinerEtat,
+} from "../utils/calculs";
 
-// دوال مساعدة مباشرة
 const moyenne = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 const somme = arr => arr.reduce((a, b) => a + b, 0);
-
 const defaultSalle = (cno, semaines, heures) => ({
   surface: "",
   cno,
@@ -21,18 +24,15 @@ const defaultSalle = (cno, semaines, heures) => ({
 
 export default function TDA() {
   const pdfRef = useRef();
-
   const [salles, setSalles] = useState({
     theorie: [defaultSalle(1.0, 72, 56)],
     pratique: [defaultSalle(1.0, 72, 56)],
     tpSpecifiques: [defaultSalle(1.0, 72, 56)],
   });
-
   const [cnos, setCnos] = useState({ theorie: 1.0, pratique: 1.0, tpSpecifiques: 1.0 });
   const [semaines, setSemaines] = useState({ theorie: 72, pratique: 72, tpSpecifiques: 72 });
   const [heures, setHeures] = useState({ theorie: 56, pratique: 56, tpSpecifiques: 56 });
   const [apprenants, setApprenants] = useState({ theorie: 26, pratique: 26, tpSpecifiques: 26 });
-
   const [effectif, setEffectif] = useState([{ specialite: "", groupes: 0, apprenants: 0 }]);
   const [repartition, setRepartition] = useState({
     besoinTheoTotal: 0,
@@ -62,6 +62,26 @@ export default function TDA() {
   const moyenneSurfacePrat = moyenne(salles.pratique.map(s => Number(s.surfaceP) || 0));
   const moyenneSurfaceTpSpec = moyenne(salles.tpSpecifiques.map(s => Number(s.surfaceP) || 0));
 
+  const heuresRestantesTheo = calculerHeuresRestantes(totalHeuresTheo, repartition.besoinTheoTotal);
+  const heuresRestantesPrat = calculerHeuresRestantes(totalHeuresPrat, repartition.besoinPratTotal);
+  const heuresRestantesTpSpec = calculerHeuresRestantes(totalHeuresTpSpec, repartition.besoinTpSpecTotal);
+
+  const apprenantsPossiblesTheo = calculerApprenantsPossibles(
+    heuresRestantesTheo, repartition.moyenneTheo, moyenneSurfaceTheo
+  );
+  const apprenantsPossiblesPrat = calculerApprenantsPossibles(
+    heuresRestantesPrat, repartition.moyennePrat, moyenneSurfacePrat
+  );
+  const apprenantsPossiblesTpSpec = calculerApprenantsPossibles(
+    heuresRestantesTpSpec, repartition.moyenneTpSpec, moyenneSurfaceTpSpec
+  );
+
+  const etatTheo = determinerEtat(heuresRestantesTheo);
+  const etatPrat = determinerEtat(heuresRestantesPrat);
+  const etatTpSpec = determinerEtat(heuresRestantesTpSpec);
+
+  const testGlobal = etatTheo === 'Excédent' && etatPrat === 'Excédent' && etatTpSpec === 'Excédent' ? 'Excédent' : 'Dépassement';
+
   const resultatsData = {
     totalHeuresTheo,
     totalHeuresPrat,
@@ -76,6 +96,13 @@ export default function TDA() {
     moyenneSurfacePrat,
     moyenneSurfaceTpSpec,
   };
+
+  const resultatsFinalTable = [
+    ["Théorie", heuresRestantesTheo, apprenantsPossiblesTheo, etatTheo],
+    ["Pratique", heuresRestantesPrat, apprenantsPossiblesPrat, etatPrat],
+    ["TP Spécifiques", heuresRestantesTpSpec, apprenantsPossiblesTpSpec, etatTpSpec],
+    ["Résultat Global", "", "", testGlobal]
+  ];
 
   const handleEffectifChange = (rows) => {
     setEffectif(rows.length ? rows : [{ specialite: "", groupes: 0, apprenants: 0 }]);
@@ -152,7 +179,7 @@ export default function TDA() {
       resultatsData.moyenneSurfaceTheo,
       resultatsData.moyenneSurfacePrat,
       resultatsData.moyenneSurfaceTpSpec,
-      resultatsData.totalHeuresTheo > resultatsData.besoinTheoTotal ? "Excédent" : "Dépassement"
+      testGlobal
     ]]
   };
 
@@ -201,7 +228,7 @@ export default function TDA() {
           ↩️ Page d&apos;accueil
         </button>
         <button
-          onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}
+          onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable, resultatsFinalTable })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           📄 Générer le PDF

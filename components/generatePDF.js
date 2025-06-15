@@ -76,7 +76,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [41, 128, 185] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
+      tableStartY = pdf.lastAutoTable.finalY + 10;
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
@@ -97,7 +97,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [39, 174, 96] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
+      tableStartY = pdf.lastAutoTable.finalY + 10;
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
@@ -116,7 +116,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [231, 76, 60] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 5; // إضافة مسافة بين الجدول والنتيجة النهائية
+      tableStartY = pdf.lastAutoTable.finalY + 5;
 
       // --- النتيجة النهائية ---
       const finalResult = resultatsTable.rows[resultatsTable.rows.length - 1][resultatsTable.columns.length - 1];
