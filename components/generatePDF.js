@@ -115,7 +115,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       autoTable(pdf, {
         startY: tableStartY + 5,
         head: [['Aucune donnée disponible']],
-        body: [['Pas de données']],
+        body: [['Pas de données disponibles']],
         styles: { fontSize: 10 },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
