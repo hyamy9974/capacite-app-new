@@ -91,7 +91,13 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
     }
 
     // --- النتائج ---
-    if (resultats && Array.isArray(resultats.columns) && Array.isArray(resultats.rows) && resultats.rows.length > 0) {
+    if (
+      resultats &&
+      Array.isArray(resultats.columns) &&
+      Array.isArray(resultats.rows) &&
+      resultats.columns.length > 0 &&
+      resultats.rows.length > 0
+    ) {
       pdf.setFontSize(13);
       pdf.text('Résultats', 14, tableStartY);
       autoTable(pdf, {
@@ -104,10 +110,12 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultats }) {
       });
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات النتائج. سيتم إدراج جدول فارغ.');
+      pdf.setFontSize(13);
+      pdf.text('Résultats (Pas de données disponibles)', 14, tableStartY);
       autoTable(pdf, {
         startY: tableStartY + 5,
-        head: [['Colonnes']],
-        body: [['Pas de données disponibles']],
+        head: [['Aucune donnée disponible']],
+        body: [['Pas de données']],
         styles: { fontSize: 10 },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
