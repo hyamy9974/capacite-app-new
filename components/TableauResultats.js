@@ -41,6 +41,33 @@ export default function TableauResultats({ data }) {
   const testGlobal = etatTheo === 'Excédent' && etatPrat === 'Excédent' && etatTpSpec === 'Excédent' ? 'Excédent' : 'Dépassement';
   const couleurGlobal = testGlobal === 'Excédent' ? 'text-green-600' : 'text-red-600';
 
+  // --- الفلترة: لا يعرض صف النوع إذا كان معدل المساحة البيداغوجية = 0 ---
+  const rows = [];
+  if (moyenneSurfaceTheo > 0) {
+    rows.push({
+      label: "Théorique",
+      heures: isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
+      apprenants: isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
+      etat: etatTheo,
+    });
+  }
+  if (moyenneSurfacePrat > 0) {
+    rows.push({
+      label: "Pratique",
+      heures: isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
+      apprenants: isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
+      etat: etatPrat,
+    });
+  }
+  if (moyenneSurfaceTpSpec > 0) {
+    rows.push({
+      label: "TP Spécifique",
+      heures: isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
+      apprenants: isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
+      etat: etatTpSpec,
+    });
+  }
+
   return (
     <div className="bg-white shadow rounded-2xl p-4 mb-8">
       <h2 className="text-xl font-bold text-gray-700 mb-4">Résultats</h2>
@@ -54,30 +81,16 @@ export default function TableauResultats({ data }) {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td className="border p-2">Théorique</td>
-            <td className="border p-2 text-center">{isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo}</td>
-            <td className="border p-2 text-center">{isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo}</td>
-            <td className={`border p-2 text-center font-semibold ${etatTheo === 'Excédent' ? 'text-green-600' : 'text-red-600'}`}>
-              {etatTheo}
-            </td>
-          </tr>
-          <tr>
-            <td className="border p-2">Pratique</td>
-            <td className="border p-2 text-center">{isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat}</td>
-            <td className="border p-2 text-center">{isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat}</td>
-            <td className={`border p-2 text-center font-semibold ${etatPrat === 'Excédent' ? 'text-green-600' : 'text-red-600'}`}>
-              {etatPrat}
-            </td>
-          </tr>
-          <tr>
-            <td className="border p-2">TP Spécifique</td>
-            <td className="border p-2 text-center">{isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec}</td>
-            <td className="border p-2 text-center">{isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec}</td>
-            <td className={`border p-2 text-center font-semibold ${etatTpSpec === 'Excédent' ? 'text-green-600' : 'text-red-600'}`}>
-              {etatTpSpec}
-            </td>
-          </tr>
+          {rows.map((row, i) => (
+            <tr key={i}>
+              <td className="border p-2">{row.label}</td>
+              <td className="border p-2 text-center">{row.heures}</td>
+              <td className="border p-2 text-center">{row.apprenants}</td>
+              <td className={`border p-2 text-center font-semibold ${row.etat === 'Excédent' ? 'text-green-600' : 'text-red-600'}`}>
+                {row.etat}
+              </td>
+            </tr>
+          ))}
           {/* السطر الأخير */}
           <tr className="font-bold">
             <td className="border p-2 text-center" colSpan="3">Résultat Global</td>
