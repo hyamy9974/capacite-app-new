@@ -102,18 +102,22 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- ملخص النتائج (ملون ومنظم كما طلبت) ---
+    // --- ملخص النتائج (تنسيق متقدم: دمج الأعمدة الأولى وإظهار العنوان) ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
 
-      // تجهيز صفوف الجدول مع تنسيقات الألوان
+      // تجهيز صفوف الجدول مع colSpan وstyling
       const body = resultatsTable.rows.map((row, idx) => {
-        // للصف الأخير (Résultat Global): دمج الأعمدة الثلاثة الأولى، وتلوين الخلية الأخيرة
         if (idx === 3) {
+          // صف Résultat Global: كلمة Résultat Global تحت الأعمدة الـ3 ونتيجة ملونة
           return [
-            { content: '', colSpan: 3, styles: { fillColor: [255,255,255], textColor: [255,255,255], lineColor: [255,255,255] } },
+            {
+              content: "Résultat Global",
+              colSpan: 3,
+              styles: { halign: 'center', fontStyle: 'normal', textColor: [33,33,33], fillColor: [245,245,245] }
+            },
             {
               content: row[3],
               styles: {
