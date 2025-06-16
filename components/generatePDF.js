@@ -159,7 +159,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         body: body,
         styles: { fontSize: 9, halign: 'center', valign: 'middle' },
         theme: 'grid',
-        headStyles: { fillColor: [231, 76, 60] },
+        headStyles: { fillColor: [155, 89, 182] },
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
