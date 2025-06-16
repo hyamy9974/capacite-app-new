@@ -155,7 +155,9 @@ export default function TableauSalles({
   };
 
   const heuresOptions = [40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60];
-  const cnoOptions = Array.from({ length: 21 }, (_, i) => (1 + i * 0.1).toFixed(1));
+
+  // --- تصحيح cnoOptions: أرقام وليس نصوص حتى تعمل كل الخيارات بشكل صحيح ---
+  const cnoOptions = Array.from({ length: 21 }, (_, i) => +(1 + i * 0.1));
   const semainesOptions = Array.from({ length: 100 }, (_, i) => i + 1);
   const apprenantsOptions = Array.from({ length: 21 }, (_, i) => 10 + i); // 10 إلى 30
 
@@ -180,7 +182,7 @@ export default function TableauSalles({
                   style={{ marginLeft: 8, width: 80 }}
                 >
                   {cnoOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <option key={opt} value={opt}>{opt.toFixed(1)}</option>
                   ))}
                 </select>
               </label>
