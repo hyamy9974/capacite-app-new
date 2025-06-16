@@ -31,10 +31,10 @@ export default function Home() {
         <Image
           src="/logo.png"
           alt="Logo Ministère"
-          width={90}
-          height={15}
+          width={450}
+          height={75}
           className="mx-auto mb-4"
-          style={{ width: 90, height: 15, objectFit: 'contain' }}
+          style={{ width: 450, height: 75, objectFit: 'contain' }}
         />
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
           Diagnostic de la Capacité d&apos;Accueil
