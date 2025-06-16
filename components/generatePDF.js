@@ -102,16 +102,48 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- ملخص النتائج (مطابق لجدول النتائج في الواجهة) ---
+    // --- ملخص النتائج (ملون ومنظم كما طلبت) ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
+
+      // تجهيز صفوف الجدول مع تنسيقات الألوان
+      const body = resultatsTable.rows.map((row, idx) => {
+        // للصف الأخير (Résultat Global): دمج الأعمدة الثلاثة الأولى، وتلوين الخلية الأخيرة
+        if (idx === 3) {
+          return [
+            { content: '', colSpan: 3, styles: { fillColor: [255,255,255], textColor: [255,255,255], lineColor: [255,255,255] } },
+            {
+              content: row[3],
+              styles: {
+                fillColor: row[3] === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
+                textColor: [255,255,255],
+                fontStyle: 'bold'
+              }
+            }
+          ];
+        }
+        // بقية الصفوف: تلوين كلمة Excédent/Dépassement فقط في العمود الرابع
+        return row.map((cell, colIdx) => {
+          if (colIdx === 3) {
+            return {
+              content: cell,
+              styles: {
+                textColor: cell === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
+                fontStyle: 'bold'
+              }
+            };
+          }
+          return { content: cell };
+        });
+      });
+
       autoTable(pdf, {
         startY: tableStartY,
         head: [resultatsTable.columns],
-        body: resultatsTable.rows,
-        styles: { fontSize: 9 },
+        body: body,
+        styles: { fontSize: 9, halign: 'center', valign: 'middle' },
         theme: 'grid',
         headStyles: { fillColor: [231, 76, 60] },
         margin: { left: 14, right: 14 },
