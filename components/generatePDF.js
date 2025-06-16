@@ -29,6 +29,17 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
 
+  // --- التاريخ والتوقيت أعلى الصفحة على اليمين ---
+  const dateTime = new Date().toLocaleString('fr-FR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).replace(',', ' •');
+  pdf.setFontSize(10);
+  pdf.text(dateTime, pageWidth - 14, 10, { align: 'right' });
+
   // --- تحميل الشعار ووضعه ---
   loadLogoMinistere((logoMinistere) => {
     let currentY = 10;
@@ -54,11 +65,10 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
-    const dateGeneration = new Date().toLocaleDateString();
     pdf.setFontSize(11);
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
-    pdf.text(`Date de génération : ${dateGeneration}`, 14, currentY + 22);
+    // تمت إزالة سطر التاريخ من هنا
 
     let tableStartY = currentY + 30;
 
