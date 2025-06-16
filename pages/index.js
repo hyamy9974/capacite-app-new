@@ -27,12 +27,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-3xl w-full text-center">
+        {/* تم تغيير مقاس الشعار كما طلبت */}
         <Image
           src="/logo.png"
           alt="Logo Ministère"
-          width={100}
-          height={100}
+          width={90}
+          height={15}
           className="mx-auto mb-4"
+          style={{ width: 90, height: 15 }} // لضمان ضبط الأبعاد بدقة
         />
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
           Diagnostic de la Capacité d&apos;Accueil
@@ -74,7 +76,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => router.push('/tdp')}
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl shadow"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow"
           >
             Test de dépassement prévu
           </button>
@@ -87,5 +89,3 @@ export default function Home() {
     </div>
   );
 }
-
-
