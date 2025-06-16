@@ -95,7 +95,6 @@ export default function TDA() {
     moyenneSurfaceTheo,
     moyenneSurfacePrat,
     moyenneSurfaceTpSpec,
-    // المخرجات المحسوبة للفلترة في جدول النتائج
     heuresRestantesTheo,
     heuresRestantesPrat,
     heuresRestantesTpSpec,
@@ -108,7 +107,7 @@ export default function TDA() {
     testGlobal
   };
 
-  // --- فلترة synthèse des résultats مع الحفاظ على Résultat Global
+  // فلترة synthèse des résultats مع الحفاظ على Résultat Global بشكل منفصل
   const resultatsRows = [];
   if (moyenneSurfaceTheo > 0)
     resultatsRows.push([
@@ -131,19 +130,16 @@ export default function TDA() {
       isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
       etatTpSpec
     ]);
-  // Résultat Global toujours affiché بنفس الخصائص
-  resultatsRows.push([
-    "Résultat Global",
-    "",
-    "",
-    testGlobal
-  ]);
+  const resultatGlobalRow = [
+    "Résultat Global", "", "", testGlobal
+  ];
   const resultatsTable = {
     columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
-    rows: resultatsRows
+    rows: resultatsRows,
+    resultatGlobalRow
   };
 
-  // --- فلترة synthèse des salles ---
+  // فلترة synthèse des salles فقط
   const sallesSummaryRaw = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
     ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],

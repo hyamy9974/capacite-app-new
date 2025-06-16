@@ -71,14 +71,12 @@ export default function TDP() {
   const moyenneSurfaceTpSpec = moyenne(salles.tpSpecifiques.map(s => Number(s.surfaceP) || 0));
 
   // --- حساب النتائج النهائية ---
-  // يمكنك تعديل هذه الدوال إذا أردت حساب apprenantsPossibles بشكل أدق في المستقبل
   function calculerHeuresRestantes(total, besoin) {
     return Number(total) - Number(besoin);
   }
   function determinerEtat(heuresRestantes) {
     return heuresRestantes >= 0 ? 'Excédent' : 'Dépassement';
   }
-  // apprenantsPossibles = heuresRestantes / moyenneBesoinTheo * moyenneSurfaceTheo (تقريباً، عدلها حسب منطقك إذا لزم)
   function calculerApprenantsPossibles(heuresRestantes, moyenneBesoin, moyenneSurface) {
     if (!moyenneBesoin || !moyenneSurface || isNaN(heuresRestantes)) return 0;
     return Math.max(0, Math.floor((heuresRestantes / moyenneBesoin) * moyenneSurface));
@@ -117,7 +115,6 @@ export default function TDP() {
     moyenneSurfaceTheo,
     moyenneSurfacePrat,
     moyenneSurfaceTpSpec,
-    // المخرجات المحسوبة للفلترة في جدول النتائج
     heuresRestantesTheo,
     heuresRestantesPrat,
     heuresRestantesTpSpec,
@@ -130,7 +127,7 @@ export default function TDP() {
     testGlobal
   };
 
-  // --- فلترة synthèse des résultats مع الحفاظ على Résultat Global
+  // فلترة synthèse des résultats مع الحفاظ على Résultat Global بشكل منفصل
   const resultatsRows = [];
   if (moyenneSurfaceTheo > 0)
     resultatsRows.push([
@@ -153,19 +150,16 @@ export default function TDP() {
       isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
       etatTpSpec
     ]);
-  // Résultat Global toujours affiché بنفس الخصائص
-  resultatsRows.push([
-    "Résultat Global",
-    "",
-    "",
-    testGlobal
-  ]);
+  const resultatGlobalRow = [
+    "Résultat Global", "", "", testGlobal
+  ];
   const resultatsTable = {
     columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
-    rows: resultatsRows
+    rows: resultatsRows,
+    resultatGlobalRow
   };
 
-  // --- فلترة synthèse des salles ---
+  // فلترة synthèse des salles فقط
   const sallesSummaryRaw = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
     ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
