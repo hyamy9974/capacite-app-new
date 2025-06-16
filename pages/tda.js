@@ -107,7 +107,7 @@ export default function TDA() {
     testGlobal
   };
 
-  // فلترة synthèse des résultats مع الحفاظ على Résultat Global بشكل منفصل
+  // فلترة synthèse des résultats مع الحفاظ على Résultat Global بشكل خاص (colSpan)
   const resultatsRows = [];
   if (moyenneSurfaceTheo > 0)
     resultatsRows.push([
@@ -130,13 +130,14 @@ export default function TDA() {
       isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
       etatTpSpec
     ]);
-  const resultatGlobalRow = [
-    "Résultat Global", "", "", testGlobal
-  ];
+  // Résultat Global: صف خاص بcolSpan = 3
+  resultatsRows.push([
+    { value: "Résultat Global", colSpan: 3 },
+    testGlobal
+  ]);
   const resultatsTable = {
     columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
-    rows: resultatsRows,
-    resultatGlobalRow
+    rows: resultatsRows
   };
 
   // فلترة synthèse des salles فقط

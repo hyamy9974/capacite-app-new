@@ -68,7 +68,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     pdf.setFontSize(11);
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
-    // تمت إزالة سطر التاريخ من هنا
 
     let tableStartY = currentY + 30;
 
@@ -112,7 +111,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- ملخص النتائج (تنسيق متقدم: دمج الأعمدة الأولى وإظهار العنوان) ---
+    // --- ملخص النتائج (يدعم colSpan/سطر Résultat Global) ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
@@ -120,18 +119,18 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
       // تجهيز صفوف الجدول مع colSpan وstyling
       const body = resultatsTable.rows.map((row, idx) => {
-        if (idx === 3) {
-          // صف Résultat Global: كلمة Résultat Global تحت الأعمدة الـ3 ونتيجة ملونة
+        // إذا كان السطر الأخير (Résultat Global) وهو كائن colSpan
+        if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
           return [
             {
-              content: "Résultat Global",
+              content: row[0].value,
               colSpan: 3,
-              styles: { halign: 'center', fontStyle: 'normal', textColor: [33,33,33], fillColor: [245,245,245] }
+              styles: { halign: 'center', fontStyle: 'bold', textColor: [33,33,33], fillColor: [245,245,245] }
             },
             {
-              content: row[3],
+              content: row[1],
               styles: {
-                fillColor: row[3] === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
+                fillColor: row[1] === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
                 textColor: [255,255,255],
                 fontStyle: 'bold'
               }
@@ -159,7 +158,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         body: body,
         styles: { fontSize: 9, halign: 'center', valign: 'middle' },
         theme: 'grid',
-        headStyles: { fillColor: [155, 89, 182] },
+        headStyles: { fillColor: [231, 76, 60] },
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
