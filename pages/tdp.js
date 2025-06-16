@@ -120,39 +120,27 @@ export default function TDP() {
   };
 
   // جدول النتائج المطابق للواجهة (TableauResultats)
-  // --- فلترة الصفوف حسب المعدل ---
-  const baseRows = [
-    [
-      "Théorique",
-      isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
-      isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
-      etatTheo
-    ],
-    [
-      "Pratique",
-      isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
-      isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
-      etatPrat
-    ],
-    [
-      "TP Spécifiques",
-      isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
-      isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
-      etatTpSpec
-    ]
-  ];
-
-  const filteredRows = baseRows.filter((row, idx) => {
-    if (idx === 0) return moyenneSurfaceTheo > 0;
-    if (idx === 1) return moyenneSurfacePrat > 0;
-    if (idx === 2) return moyenneSurfaceTpSpec > 0;
-    return true;
-  });
-
   const resultatsTable = {
     columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
     rows: [
-      ...filteredRows,
+      [
+        "Théorique",
+        isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
+        isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
+        etatTheo
+      ],
+      [
+        "Pratique",
+        isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
+        isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
+        etatPrat
+      ],
+      [
+        "TP Spécifiques",
+        isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
+        isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
+        etatTpSpec
+      ],
       [
         "Résultat Global",
         "",
@@ -162,13 +150,11 @@ export default function TDP() {
     ]
   };
 
-  const sallesSummaryRaw = [
+  const sallesSummary = [
     ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
     ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
     ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
   ];
-
-const sallesSummary = sallesSummaryRaw.filter(row => Number(row[2]) > 0);
 
   const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
   const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
