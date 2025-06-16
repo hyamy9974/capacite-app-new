@@ -76,7 +76,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [41, 128, 185] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10;
+      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
@@ -97,12 +97,12 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [39, 174, 96] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10;
+      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- ملخص النتائج ---
+    // --- ملخص النتائج (مطابق لجدول النتائج في الواجهة) ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
@@ -116,14 +116,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [231, 76, 60] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 5;
-
-      // --- النتيجة النهائية ---
-      const finalResult = resultatsTable.rows[resultatsTable.rows.length - 1][resultatsTable.columns.length - 1];
-      const finalColor = finalResult === 'Excédent' ? [0, 128, 0] : [255, 0, 0]; // أخضر أو أحمر
-      pdf.setFontSize(11);
-      pdf.setTextColor(...finalColor);
-      pdf.text(`Résultat global : ${finalResult}`, 14, tableStartY + 6);
+      tableStartY = pdf.lastAutoTable.finalY + 10;
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
