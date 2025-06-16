@@ -70,6 +70,40 @@ export default function TDP() {
   const moyenneSurfacePrat = moyenne(salles.pratique.map(s => Number(s.surfaceP) || 0));
   const moyenneSurfaceTpSpec = moyenne(salles.tpSpecifiques.map(s => Number(s.surfaceP) || 0));
 
+  // --- حساب النتائج النهائية ---
+  // يمكنك تعديل هذه الدوال إذا أردت حساب apprenantsPossibles بشكل أدق في المستقبل
+  function calculerHeuresRestantes(total, besoin) {
+    return Number(total) - Number(besoin);
+  }
+  function determinerEtat(heuresRestantes) {
+    return heuresRestantes >= 0 ? 'Excédent' : 'Dépassement';
+  }
+  // apprenantsPossibles = heuresRestantes / moyenneBesoinTheo * moyenneSurfaceTheo (تقريباً، عدلها حسب منطقك إذا لزم)
+  function calculerApprenantsPossibles(heuresRestantes, moyenneBesoin, moyenneSurface) {
+    if (!moyenneBesoin || !moyenneSurface || isNaN(heuresRestantes)) return 0;
+    return Math.max(0, Math.floor((heuresRestantes / moyenneBesoin) * moyenneSurface));
+  }
+
+  const heuresRestantesTheo = calculerHeuresRestantes(totalHeuresTheo, repartition.besoinTheoTotal);
+  const heuresRestantesPrat = calculerHeuresRestantes(totalHeuresPrat, repartition.besoinPratTotal);
+  const heuresRestantesTpSpec = calculerHeuresRestantes(totalHeuresTpSpec, repartition.besoinTpSpecTotal);
+
+  const apprenantsPossiblesTheo = calculerApprenantsPossibles(
+    heuresRestantesTheo, repartition.moyenneTheo, moyenneSurfaceTheo
+  );
+  const apprenantsPossiblesPrat = calculerApprenantsPossibles(
+    heuresRestantesPrat, repartition.moyennePrat, moyenneSurfacePrat
+  );
+  const apprenantsPossiblesTpSpec = calculerApprenantsPossibles(
+    heuresRestantesTpSpec, repartition.moyenneTpSpec, moyenneSurfaceTpSpec
+  );
+
+  const etatTheo = determinerEtat(heuresRestantesTheo);
+  const etatPrat = determinerEtat(heuresRestantesPrat);
+  const etatTpSpec = determinerEtat(heuresRestantesTpSpec);
+
+  const testGlobal = etatTheo === 'Excédent' && etatPrat === 'Excédent' && etatTpSpec === 'Excédent' ? 'Excédent' : 'Dépassement';
+
   const resultatsData = {
     totalHeuresTheo,
     totalHeuresPrat,
@@ -84,6 +118,50 @@ export default function TDP() {
     moyenneSurfacePrat,
     moyenneSurfaceTpSpec,
   };
+
+  // جدول النتائج المطابق للواجهة (TableauResultats)
+  const resultatsTable = {
+    columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
+    rows: [
+      [
+        "Théorique",
+        isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
+        isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
+        etatTheo
+      ],
+      [
+        "Pratique",
+        isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
+        isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
+        etatPrat
+      ],
+      [
+        "TP Spécifiques",
+        isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
+        isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
+        etatTpSpec
+      ],
+      [
+        "Résultat Global",
+        "",
+        "",
+        testGlobal
+      ]
+    ]
+  };
+
+  const sallesSummary = [
+    ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
+    ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
+    ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
+  ];
+
+  const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
+  const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
+  const apprenantsSummary = [
+    ...effectif.map(e => [e.specialite, e.groupes, e.apprenants, (Number(e.groupes) || 0) + (Number(e.apprenants) || 0)]),
+    ["Total", totalGroupes, totalApprenants, totalGroupes + totalApprenants]
+  ];
 
   const handleEffectifChange = (rows) => {
     if (!rows || rows.length === 0) {
@@ -141,44 +219,6 @@ export default function TDP() {
       setRepartition(parsed.repartition || repartition);
     }
   }, []);
-
-  const sallesSummary = [
-    ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
-    ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
-    ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
-  ];
-
-  const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
-  const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
-  const apprenantsSummary = [
-    ...effectif.map(e => [e.specialite, e.groupes, e.apprenants, (Number(e.groupes) || 0) + (Number(e.apprenants) || 0)]),
-    ["Total", totalGroupes, totalApprenants, totalGroupes + totalApprenants]
-  ];
-
-  const resultatsTable = {
-    columns: [
-      "Total Heures Théorie", "Total Heures Pratique", "Total Heures TP Spécifiques",
-      "Besoin Théorie", "Besoin Pratique", "Besoin TP Spécifiques",
-      "Moyenne Besoin Théorie", "Moyenne Besoin Pratique", "Moyenne Besoin TP Spécifiques",
-      "Moyenne Surface Théorie", "Moyenne Surface Pratique", "Moyenne Surface TP Spécifiques",
-      "Résultat Final"
-    ],
-    rows: [[
-      resultatsData.totalHeuresTheo,
-      resultatsData.totalHeuresPrat,
-      resultatsData.totalHeuresTpSpec,
-      resultatsData.besoinTheoTotal,
-      resultatsData.besoinPratTotal,
-      resultatsData.besoinTpSpecTotal,
-      resultatsData.moyenneBesoinTheo,
-      resultatsData.moyenneBesoinPrat,
-      resultatsData.moyenneBesoinTpSpec,
-      resultatsData.moyenneSurfaceTheo,
-      resultatsData.moyenneSurfacePrat,
-      resultatsData.moyenneSurfaceTpSpec,
-      resultatsData.totalHeuresTheo > resultatsData.besoinTheoTotal ? "Excédent" : "Dépassement"
-    ]]
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

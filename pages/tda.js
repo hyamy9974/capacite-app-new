@@ -97,11 +97,48 @@ export default function TDA() {
     moyenneSurfaceTpSpec,
   };
 
-  const resultatsFinalTable = [
-    ["Théorie", heuresRestantesTheo, apprenantsPossiblesTheo, etatTheo],
-    ["Pratique", heuresRestantesPrat, apprenantsPossiblesPrat, etatPrat],
-    ["TP Spécifiques", heuresRestantesTpSpec, apprenantsPossiblesTpSpec, etatTpSpec],
-    ["Résultat Global", "", "", testGlobal]
+  // جدول النتائج المطابق للواجهة (TableauResultats)
+  const resultatsTable = {
+    columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
+    rows: [
+      [
+        "Théorique",
+        isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
+        isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
+        etatTheo
+      ],
+      [
+        "Pratique",
+        isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
+        isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
+        etatPrat
+      ],
+      [
+        "TP Spécifiques",
+        isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
+        isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
+        etatTpSpec
+      ],
+      [
+        "Résultat Global",
+        "",
+        "",
+        testGlobal
+      ]
+    ]
+  };
+
+  const sallesSummary = [
+    ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
+    ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
+    ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
+  ];
+
+  const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
+  const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
+  const apprenantsSummary = [
+    ...effectif.map(e => [e.specialite, e.groupes, e.apprenants, (Number(e.groupes) || 0) + (Number(e.apprenants) || 0)]),
+    ["Total", totalGroupes, totalApprenants, totalGroupes + totalApprenants]
   ];
 
   const handleEffectifChange = (rows) => {
@@ -143,44 +180,6 @@ export default function TDA() {
       moyenneTpSpec: 0,
     });
     alert("Les données ont été réinitialisées.");
-  };
-
-  const sallesSummary = [
-    ["Théorie", salles.theorie.length, moyenneSurfaceTheo.toFixed(2), totalHeuresTheo],
-    ["Pratique", salles.pratique.length, moyenneSurfacePrat.toFixed(2), totalHeuresPrat],
-    ["TP Spécifiques", salles.tpSpecifiques.length, moyenneSurfaceTpSpec.toFixed(2), totalHeuresTpSpec]
-  ];
-
-  const totalGroupes = somme(effectif.map(e => Number(e.groupes) || 0));
-  const totalApprenants = somme(effectif.map(e => Number(e.apprenants) || 0));
-  const apprenantsSummary = [
-    ...effectif.map(e => [e.specialite, e.groupes, e.apprenants, (Number(e.groupes) || 0) + (Number(e.apprenants) || 0)]),
-    ["Total", totalGroupes, totalApprenants, totalGroupes + totalApprenants]
-  ];
-
-  const resultatsTable = {
-    columns: [
-      "Total Heures Théorie", "Total Heures Pratique", "Total Heures TP Spécifiques",
-      "Besoin Théorie", "Besoin Pratique", "Besoin TP Spécifiques",
-      "Moyenne Besoin Théorie", "Moyenne Besoin Pratique", "Moyenne Besoin TP Spécifiques",
-      "Moyenne Surface Théorie", "Moyenne Surface Pratique", "Moyenne Surface TP Spécifiques",
-      "Résultat Final"
-    ],
-    rows: [[
-      resultatsData.totalHeuresTheo,
-      resultatsData.totalHeuresPrat,
-      resultatsData.totalHeuresTpSpec,
-      resultatsData.besoinTheoTotal,
-      resultatsData.besoinPratTotal,
-      resultatsData.besoinTpSpecTotal,
-      resultatsData.moyenneBesoinTheo,
-      resultatsData.moyenneBesoinPrat,
-      resultatsData.moyenneBesoinTpSpec,
-      resultatsData.moyenneSurfaceTheo,
-      resultatsData.moyenneSurfacePrat,
-      resultatsData.moyenneSurfaceTpSpec,
-      testGlobal
-    ]]
   };
 
   return (
@@ -228,7 +227,7 @@ export default function TDA() {
           ↩️ Page d&apos;accueil
         </button>
         <button
-          onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable, resultatsFinalTable })}
+          onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}
           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           📄 Générer le PDF
