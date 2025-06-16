@@ -103,7 +103,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         body: apprenantsBody,
         styles: { fontSize: 9 },
         theme: 'grid',
-        headStyles: { fillColor: [39, 174, 96] },
+        headStyles: { fillColor: [255, 165, 0] },
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
