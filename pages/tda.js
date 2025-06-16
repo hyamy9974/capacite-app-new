@@ -98,27 +98,40 @@ export default function TDA() {
   };
 
   // جدول النتائج المطابق للواجهة (TableauResultats)
+  // --- فلترة الصفوف حسب المعدل ---
+  const baseRows = [
+    [
+      "Théorique",
+      isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
+      isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
+      etatTheo
+    ],
+    [
+      "Pratique",
+      isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
+      isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
+      etatPrat
+    ],
+    [
+      "TP Spécifiques",
+      isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
+      isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
+      etatTpSpec
+    ],
+  ];
+
+  const filteredRows = baseRows.filter((row, idx) => {
+    // معدل المساحة البيداغوجية لكل نوع (نفس الترتيب)
+    if (idx === 0) return moyenneSurfaceTheo > 0;
+    if (idx === 1) return moyenneSurfacePrat > 0;
+    if (idx === 2) return moyenneSurfaceTpSpec > 0;
+    return true;
+  });
+
   const resultatsTable = {
     columns: ["Type", "Heures restantes", "Apprenants possibles", "État"],
     rows: [
-      [
-        "Théorique",
-        isNaN(heuresRestantesTheo) ? 0 : heuresRestantesTheo,
-        isNaN(apprenantsPossiblesTheo) ? 0 : apprenantsPossiblesTheo,
-        etatTheo
-      ],
-      [
-        "Pratique",
-        isNaN(heuresRestantesPrat) ? 0 : heuresRestantesPrat,
-        isNaN(apprenantsPossiblesPrat) ? 0 : apprenantsPossiblesPrat,
-        etatPrat
-      ],
-      [
-        "TP Spécifiques",
-        isNaN(heuresRestantesTpSpec) ? 0 : heuresRestantesTpSpec,
-        isNaN(apprenantsPossiblesTpSpec) ? 0 : apprenantsPossiblesTpSpec,
-        etatTpSpec
-      ],
+      ...filteredRows,
       [
         "Résultat Global",
         "",
