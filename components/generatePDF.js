@@ -182,11 +182,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
 
-      // --- النص التوضيحي أسفل النتائج ---
-      pdf.setFontSize(10);
-      pdf.setTextColor(80);
-      pdf.setFont(undefined, 'normal');
-
+      // --- نص التوضيح (Remarques) ---
       const remarques = `Remarques :
 1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.
 2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :
@@ -195,6 +191,20 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 • La présence de voies de circulation et d'un système de ventilation adéquats.
 • La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.`;
 
+      // قياس ارتفاع النص (تقريبياً)
+      const lineHeight = 7; // مقياس ارتفاع السطر بالملليمتر
+      const lines = remarques.split('\n').length;
+      const requiredHeight = lines * lineHeight;
+
+      // إذا لم تكن هناك مساحة كافية، أضف صفحة جديدة
+      if (tableStartY + requiredHeight > pageHeight - 20) {
+        pdf.addPage();
+        tableStartY = 20; // بداية جيدة في الصفحة الجديدة
+      }
+
+      pdf.setFontSize(10);
+      pdf.setTextColor(80);
+      pdf.setFont(undefined, 'normal');
       pdf.text(remarques, 14, tableStartY, {
         maxWidth: pageWidth - 28,
         align: 'left'
