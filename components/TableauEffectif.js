@@ -42,60 +42,62 @@ export default function TableauEffectif({ titre, specialties = [], data, onDataC
   return (
     <div className="bg-white shadow rounded-2xl p-4 mb-8 flex-1">
       <h2 className="text-xl font-bold text-gray-700 mb-4">{titre}</h2>
-      <table className="w-full table-auto border text-sm">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="border p-2">Spécialité</th>
-            <th className="border p-2">Groupes</th>
-            <th className="border p-2">Apprenants</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((eff, idx) => (
-            <tr key={idx}>
-              <td className="border p-2">
-                <select
-                  value={eff.specialite}
-                  onChange={e => handleChange(idx, "specialite", e.target.value)}
-                  className="w-full p-1 border rounded"
-                >
-                  <option value="">-- Choisir --</option>
-                  {specialties.map(s => (
-                    <option key={s["Spécialité"]} value={s["Spécialité"]}>
-                      {s["Spécialité"]}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className="border p-2">
-                <input
-                  type="number"
-                  min={0}
-                  value={eff.groupes}
-                  onChange={e => handleChange(idx, "groupes", e.target.value)}
-                  className="w-full p-1 border rounded"
-                />
-              </td>
-              <td className="border p-2">
-                <input
-                  type="number"
-                  min={0}
-                  value={eff.apprenants}
-                  onChange={e => handleChange(idx, "apprenants", e.target.value)}
-                  className="w-full p-1 border rounded"
-                />
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border text-sm min-w-[400px]">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="border p-2">Spécialité</th>
+              <th className="border p-2">Groupes</th>
+              <th className="border p-2">Apprenants</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="bg-gray-100 font-bold">
-            <td className="border p-2 text-center">Total</td>
-            <td className="border p-2 text-center">{totalGroupes}</td>
-            <td className="border p-2 text-center">{totalApprenants}</td>
-          </tr>
-        </tfoot>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((eff, idx) => (
+              <tr key={idx}>
+                <td className="border p-2">
+                  <select
+                    value={eff.specialite}
+                    onChange={e => handleChange(idx, "specialite", e.target.value)}
+                    className="w-full p-1 border rounded"
+                  >
+                    <option value="">-- Choisir --</option>
+                    {specialties.map(s => (
+                      <option key={s["Spécialité"]} value={s["Spécialité"]}>
+                        {s["Spécialité"]}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    min={0}
+                    value={eff.groupes}
+                    onChange={e => handleChange(idx, "groupes", e.target.value)}
+                    className="w-full p-1 border rounded"
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    min={0}
+                    value={eff.apprenants}
+                    onChange={e => handleChange(idx, "apprenants", e.target.value)}
+                    className="w-full p-1 border rounded"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-gray-100 font-bold">
+              <td className="border p-2 text-center">Total</td>
+              <td className="border p-2 text-center">{totalGroupes}</td>
+              <td className="border p-2 text-center">{totalApprenants}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
       <div className="flex gap-4 mt-4 justify-center">
         <button
           className="bg-blue-500 text-white rounded px-3 py-1"

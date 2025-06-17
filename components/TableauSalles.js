@@ -162,7 +162,7 @@ export default function TableauSalles({
   const apprenantsOptions = Array.from({ length: 21 }, (_, i) => 10 + i); // 10 إلى 30
 
   return (
-    <div className="flex gap-4 w-full">
+    <div className="flex gap-4 w-full flex-col lg:flex-row">
       {salleTitles.map(({ key, label }) => {
         // إذا لم يوجد صفوف (حالة نادرة بسبب useEffect) ضع صف افتراضي
         const sallesType = salles[key] && salles[key].length > 0
@@ -171,7 +171,7 @@ export default function TableauSalles({
         const totalHeuresMax = sommeColonne(sallesType.map(s => Number(s.heuresMax) || 0));
         const moyenneSurfaceP = moyenneColonne(sallesType.map(s => Number(s.surfaceP) || 0));
         return (
-          <div className="bg-white shadow rounded-2xl p-4 mb-8 flex-1" key={key}>
+          <div className="bg-white shadow rounded-2xl p-4 mb-8 flex-1 min-w-[320px]" key={key}>
             <h2 className="text-xl font-bold text-gray-700 mb-4">{label}</h2>
             <div style={{ marginBottom: 16, display: "flex", gap: "2rem" }}>
               <label>
@@ -223,42 +223,44 @@ export default function TableauSalles({
                 </select>
               </label>
             </div>
-            <table className="w-full table-auto border text-sm">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="border p-2">Code</th>
-                  <th className="border p-2">Surface (m²)</th>
-                  <th className="border p-2">Surface Pédagogique</th>
-                  <th className="border p-2">Heures Max</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sallesType.map((salle, index) => (
-                  <tr key={index}>
-                    <td className="border p-2 text-center">{index + 1}</td>
-                    <td className="border p-2">
-                      <input
-                        type="number"
-                        value={salle.surface}
-                        onChange={e => handleChange(key, index, "surface", e.target.value)}
-                        className="w-full p-1 border rounded"
-                      />
-                    </td>
-                    <td className="border p-2 text-center">{salle.surfaceP}</td>
-                    <td className="border p-2 text-center">{salle.heuresMax}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto border text-sm min-w-[400px]">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2">Code</th>
+                    <th className="border p-2">Surface (m²)</th>
+                    <th className="border p-2">Surface Pédagogique</th>
+                    <th className="border p-2">Heures Max</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gray-100 font-bold">
-                  <td className="border p-2 text-center" colSpan={2}>
-                    Moyenne / Somme
-                  </td>
-                  <td className="border p-2 text-center">{moyenneSurfaceP}</td>
-                  <td className="border p-2 text-center">{totalHeuresMax}</td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody>
+                  {sallesType.map((salle, index) => (
+                    <tr key={index}>
+                      <td className="border p-2 text-center">{index + 1}</td>
+                      <td className="border p-2">
+                        <input
+                          type="number"
+                          value={salle.surface}
+                          onChange={e => handleChange(key, index, "surface", e.target.value)}
+                          className="w-full p-1 border rounded"
+                        />
+                      </td>
+                      <td className="border p-2 text-center">{salle.surfaceP}</td>
+                      <td className="border p-2 text-center">{salle.heuresMax}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-gray-100 font-bold">
+                    <td className="border p-2 text-center" colSpan={2}>
+                      Moyenne / Somme
+                    </td>
+                    <td className="border p-2 text-center">{moyenneSurfaceP}</td>
+                    <td className="border p-2 text-center">{totalHeuresMax}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
             <div className="flex gap-4 mt-4 justify-center">
               <button
                 className="bg-blue-500 text-white rounded px-3 py-1"
