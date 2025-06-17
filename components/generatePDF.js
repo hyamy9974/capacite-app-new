@@ -71,14 +71,14 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     pdf.setFillColor(230, 240, 255);
     const textWidth = pdf.getTextWidth(title);
     const rectX = (pageWidth - textWidth) / 2 - paddingH;
-    const rectY = currentY - 12;
-    const rectWidth = textWidth + 1 * paddingH;
-    const rectHeight = 15 + 1 * paddingV;
-    pdf.roundedRect(rectX, rectY, rectWidth, rectHeight, 3, 3, 'FD');
+    const rectY = currentY - 10;
+    const rectWidth = textWidth + 2 * paddingH;
+    const rectHeight = 10 + 2 * paddingV;
+    pdf.roundedRect(rectX, rectY, rectWidth, rectHeight, 2, 2, 'FD');
     pdf.setTextColor(41, 128, 185);
     pdf.text(title, pageWidth / 2, currentY, { align: 'center' });
     pdf.setTextColor(0, 0, 0);
-    currentY += 25;
+    currentY += 20;
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
