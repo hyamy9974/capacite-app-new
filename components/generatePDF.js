@@ -60,7 +60,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- العنوان الرئيسي داخل إطار ---
     const title = "Rapport de diagnostic de la capacité d'accueil";
-    pdf.setFontSize(15);
+    pdf.setFontSize(14);
     const textWidth = pdf.getTextWidth(title);
     const padding = 4;
     const boxX = (pageWidth - textWidth - 2 * padding) / 2;
@@ -78,7 +78,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
 
-    let tableStartY = currentY + 25;
+    let tableStartY = currentY + 28;
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
