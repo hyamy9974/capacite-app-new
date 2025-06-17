@@ -28,6 +28,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
   // --- التاريخ والتوقيت أعلى الصفحة على اليمين ---
   const dateTime = new Date().toLocaleString('fr-FR', {
@@ -39,6 +40,18 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   }).replace(',', ' •');
   pdf.setFontSize(10);
   pdf.text(dateTime, pageWidth - 14, 10, { align: 'right' });
+
+  // دالة لإضافة ترقيم الصفحات
+  function addPageNumbers() {
+    const pageCount = pdf.internal.getNumberOfPages();
+    pdf.setFontSize(9);
+    pdf.setTextColor(100);
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      const pageNumText = `Page ${i} / ${pageCount}`;
+      pdf.text(pageNumText, pageWidth / 2, pageHeight - 10, { align: 'center' });
+    }
+  }
 
   // --- تحميل الشعار ووضعه ---
   loadLogoMinistere((logoMinistere) => {
@@ -60,7 +73,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- العنوان الرئيسي داخل إطار ---
     const title = "Rapport de diagnostic de la capacité d'accueil";
-    pdf.setFontSize(14);
+    pdf.setFontSize(15);
     const textWidth = pdf.getTextWidth(title);
     const padding = 4;
     const boxX = (pageWidth - textWidth - 2 * padding) / 2;
@@ -75,10 +88,10 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     pdf.setFontSize(10);
-    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 12);
-    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 18);
+    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
+    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
 
-    let tableStartY = currentY + 27;
+    let tableStartY = currentY + 25;
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
@@ -189,6 +202,9 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
+
+    // --- إضافة ترقيم الصفحات ---
+    addPageNumbers();
 
     // --- حفظ الملف ---
     const cleanTitle = "Rapport_de_diagnostic";
