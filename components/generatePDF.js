@@ -4,7 +4,7 @@ import autoTable from 'jspdf-autotable';
 // تحميل صورة الشعار (base64) من public/logo.png
 function loadLogoMinistere(callback) {
   const img = new window.Image();
-  img.src = '/logo.png';
+  img.src = '/logo1.png';
   img.onload = () => {
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
@@ -44,7 +44,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   loadLogoMinistere((logoMinistere) => {
     let currentY = 10;
     if (logoMinistere) {
-      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 15);
+      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 50);
     }
     currentY += 17;
 
