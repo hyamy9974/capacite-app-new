@@ -58,9 +58,18 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     );
     currentY += 13;
 
-    // --- العنوان الرئيسي ---
+    // --- العنوان الرئيسي داخل إطار ---
+    const title = "Rapport de diagnostic de la capacité d'accueil";
     pdf.setFontSize(15);
-    pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
+    const textWidth = pdf.getTextWidth(title);
+    const padding = 4;
+    const boxX = (pageWidth - textWidth - 2 * padding) / 2;
+    const boxY = currentY - 7;
+    const boxHeight = 12;
+    pdf.setDrawColor(0);
+    pdf.setLineWidth(0.5);
+    pdf.rect(boxX, boxY, textWidth + 2 * padding, boxHeight, 'S');
+    pdf.text(title, pageWidth / 2, currentY, { align: 'center' });
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
@@ -160,20 +169,23 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
 
-      // --- النص التوضيحي أسفل النتائج (المقترح الجديد) ---
-      pdf.setFontSize(9.5);
+      // --- النص التوضيحي أسفل النتائج ---
+      pdf.setFontSize(10);
       pdf.setTextColor(80);
       pdf.setFont(undefined, 'normal');
-      const remarksText = 
-`Remarques:
-1. Ce rapport présente une estimation diagnostique de la capacité d'accueil sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.
-2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :
-- La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités. 
-- L'obtention d'un certificat de prévention des risques de la Protection Civile. 
-- La présence de voies de circulation et d'un système de ventilation adéquats. 
-- La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.`;
 
-      pdf.text(remarksText, 14, tableStartY, { maxWidth: pageWidth - 28, align: 'left' });
+      const remarques = `Remarques :
+1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.
+2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :
+• La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.
+• L'obtention d'un certificat de prévention des risques de la Protection Civile.
+• La présence de voies de circulation et d'un système de ventilation adéquats.
+• La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.`;
+
+      pdf.text(remarques, 14, tableStartY, {
+        maxWidth: pageWidth - 28,
+        align: 'left'
+      });
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
