@@ -59,17 +59,17 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     currentY += 13;
 
     // --- العنوان الرئيسي ---
-    pdf.setFontSize(16);
+    pdf.setFontSize(15);
     pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
-    pdf.setFontSize(11);
+    pdf.setFontSize(10);
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
 
-    let tableStartY = currentY + 30;
+    let tableStartY = currentY + 25;
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
