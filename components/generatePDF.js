@@ -44,9 +44,9 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   loadLogoMinistere((logoMinistere) => {
     let currentY = 10;
     if (logoMinistere) {
-      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 50);
+      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 68) / 2, currentY, 68, 38);
     }
-    currentY += 50;
+    currentY += 40;
 
     // --- النص تحت الشعار ---
     pdf.setFontSize(9);
