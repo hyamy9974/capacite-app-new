@@ -92,64 +92,62 @@ export default function TableauRepartitionAjout({ effectifData, specialties, onD
   return (
     <div className="bg-white shadow rounded-2xl p-4 mb-8">
       <h2 className="text-xl font-bold text-gray-700 mb-4">Répartition Prévue</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border text-sm mb-4 min-w-[700px]">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="border p-2">Spécialité</th>
-              <th className="border p-2">Besoin Théorique<br />par Groupe</th>
-              <th className="border p-2">Besoin Pratique<br />par Groupe</th>
-              <th className="border p-2">Besoin TP Spécifique<br />par Groupe</th>
-              <th className="border p-2">Besoin Théorique<br />par Spécialité<br />(Existant+Ajout)</th>
-              <th className="border p-2">Besoin Pratique<br />par Spécialité<br />(Existant+Ajout)</th>
-              <th className="border p-2">Besoin TP Spécifique<br />par Spécialité<br />(Existant+Ajout)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, idx) => {
-              const spec = findSpecialtyData(row.specialite);
-              const besoinTheoParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
-                row.groupes || 0,
-                row.groupesAjout || 0,
-                spec["Besoin Théorique par Groupe"] || 0
-              );
-              const besoinPratParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
-                row.groupes || 0,
-                row.groupesAjout || 0,
-                spec["Besoin Pratique par Groupe"] || 0
-              );
-              const besoinTpSpecParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
-                row.groupes || 0,
-                row.groupesAjout || 0,
-                spec["Besoin TP Spécifique par Groupe"] || 0
-              );
+      <table className="w-full table-auto border text-sm mb-4">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="border p-2">Spécialité</th>
+            <th className="border p-2">Besoin Théorique<br />par Groupe</th>
+            <th className="border p-2">Besoin Pratique<br />par Groupe</th>
+            <th className="border p-2">Besoin TP Spécifique<br />par Groupe</th>
+            <th className="border p-2">Besoin Théorique<br />par Spécialité<br />(Existant+Ajout)</th>
+            <th className="border p-2">Besoin Pratique<br />par Spécialité<br />(Existant+Ajout)</th>
+            <th className="border p-2">Besoin TP Spécifique<br />par Spécialité<br />(Existant+Ajout)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => {
+            const spec = findSpecialtyData(row.specialite);
+            const besoinTheoParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
+              row.groupes || 0,
+              row.groupesAjout || 0,
+              spec["Besoin Théorique par Groupe"] || 0
+            );
+            const besoinPratParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
+              row.groupes || 0,
+              row.groupesAjout || 0,
+              spec["Besoin Pratique par Groupe"] || 0
+            );
+            const besoinTpSpecParSpecialite = calculerBesoinHoraireParSpecialiteAjout(
+              row.groupes || 0,
+              row.groupesAjout || 0,
+              spec["Besoin TP Spécifique par Groupe"] || 0
+            );
 
-              return (
-                <tr key={idx}>
-                  <td className="border p-2">{row.specialite || ""}</td>
-                  <td className="border p-2 text-center">{spec["Besoin Théorique par Groupe"] || ""}</td>
-                  <td className="border p-2 text-center">{spec["Besoin Pratique par Groupe"] || ""}</td>
-                  <td className="border p-2 text-center">{spec["Besoin TP Spécifique par Groupe"] || ""}</td>
-                  <td className="border p-2 text-center">{besoinTheoParSpecialite}</td>
-                  <td className="border p-2 text-center">{besoinPratParSpecialite}</td>
-                  <td className="border p-2 text-center">{besoinTpSpecParSpecialite}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td className="border p-2 font-bold text-right"> Moyenne / Somme</td>
-              <td className="border p-2 text-center font-bold">{avgBesoinTheoParGroupe}</td>
-              <td className="border p-2 text-center font-bold">{avgBesoinPratParGroupe}</td>
-              <td className="border p-2 text-center font-bold">{avgBesoinTpSpecParGroupe}</td>
-              <td className="border p-2 text-center font-bold">{sumBesoinTheoParSpec}</td>
-              <td className="border p-2 text-center font-bold">{sumBesoinPratParSpec}</td>
-              <td className="border p-2 text-center font-bold">{sumBesoinTpSpecParSpec}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            return (
+              <tr key={idx}>
+                <td className="border p-2">{row.specialite || ""}</td>
+                <td className="border p-2 text-center">{spec["Besoin Théorique par Groupe"] || ""}</td>
+                <td className="border p-2 text-center">{spec["Besoin Pratique par Groupe"] || ""}</td>
+                <td className="border p-2 text-center">{spec["Besoin TP Spécifique par Groupe"] || ""}</td>
+                <td className="border p-2 text-center">{besoinTheoParSpecialite}</td>
+                <td className="border p-2 text-center">{besoinPratParSpecialite}</td>
+                <td className="border p-2 text-center">{besoinTpSpecParSpecialite}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td className="border p-2 font-bold text-right"> Moyenne / Somme</td>
+            <td className="border p-2 text-center font-bold">{avgBesoinTheoParGroupe}</td>
+            <td className="border p-2 text-center font-bold">{avgBesoinPratParGroupe}</td>
+            <td className="border p-2 text-center font-bold">{avgBesoinTpSpecParGroupe}</td>
+            <td className="border p-2 text-center font-bold">{sumBesoinTheoParSpec}</td>
+            <td className="border p-2 text-center font-bold">{sumBesoinPratParSpec}</td>
+            <td className="border p-2 text-center font-bold">{sumBesoinTpSpecParSpec}</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }
