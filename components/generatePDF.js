@@ -41,17 +41,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   pdf.setFontSize(10);
   pdf.text(dateTime, pageWidth - 14, 10, { align: 'right' });
 
-  // دالة لإضافة ترقيم الصفحات
-  function addPageNumbers() {
-    const pageCount = pdf.internal.getNumberOfPages();
-    pdf.setFontSize(9);
-    pdf.setTextColor(100);
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      const pageNumText = `Page ${i} / ${pageCount}`;
-      pdf.text(pageNumText, pageWidth / 2, pageHeight - 10, { align: 'center' });
-    }
-  }
+  // --- ترقيم الصفحات (يتم إضافته بعد الانتهاء) ---
+  const totalPagesExp = "{total_pages_count_string}";
 
   // --- تحميل الشعار ووضعه ---
   loadLogoMinistere((logoMinistere) => {
@@ -71,33 +62,54 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     );
     currentY += 13;
 
-    // --- العنوان الرئيسي داخل إطار ---
+    // --- إطار العنوان الرئيسي ---
     const title = "Rapport de diagnostic de la capacité d'accueil";
+    const paddingH = 5;
+    const paddingV = 3;
     pdf.setFontSize(15);
+    pdf.setDrawColor(41, 128, 185);
+    pdf.setFillColor(230, 240, 255);
     const textWidth = pdf.getTextWidth(title);
-    const padding = 4;
-    const boxX = (pageWidth - textWidth - 2 * padding) / 2;
-    const boxY = currentY - 7;
-    const boxHeight = 12;
-    pdf.setDrawColor(0);
-    pdf.setLineWidth(0.5);
-    pdf.rect(boxX, boxY, textWidth + 2 * padding, boxHeight, 'S');
+    const rectX = (pageWidth - textWidth) / 2 - paddingH;
+    const rectY = currentY - 12;
+    const rectWidth = textWidth + 2 * paddingH;
+    const rectHeight = 15 + 2 * paddingV;
+    pdf.roundedRect(rectX, rectY, rectWidth, rectHeight, 3, 3, 'FD');
+    pdf.setTextColor(41, 128, 185);
     pdf.text(title, pageWidth / 2, currentY, { align: 'center' });
+    pdf.setTextColor(0, 0, 0);
+    currentY += 25;
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     pdf.setFontSize(10);
-    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
-    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
+    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY);
+    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 6);
 
-    let tableStartY = currentY + 25;
+    let tableStartY = currentY + 15;
+
+    // دالة لفحص هل هناك مساحة كافية على الصفحة للرسم قبل أن نبدأ الجدول (لكي لا ينقسم بداية الجدول)
+    function hasSpaceForTable(requiredHeight) {
+      return (pageHeight - tableStartY) >= requiredHeight;
+    }
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des salles', 14, tableStartY);
       tableStartY += 4;
+
+      // حساب ارتفاع الجدول تقريبا
+      const rowsCount = sallesSummary.length + 1; // +1 للرأس
+      const approxRowHeight = 7; // تقديري لكل صف
+      const requiredHeight = rowsCount * approxRowHeight + 10;
+
+      if (!hasSpaceForTable(requiredHeight)) {
+        pdf.addPage();
+        tableStartY = 20; // بداية رسم جديد في صفحة جديدة
+      }
+
       autoTable(pdf, {
         startY: tableStartY,
         head: [['Type de salle', 'Nombre de salles', 'Moy. surface pédagogique', 'Nb max heures disponibles']],
@@ -119,6 +131,16 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
       const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
       tableStartY += 4;
+
+      const rowsCount = apprenantsBody.length + 1;
+      const approxRowHeight = 7;
+      const requiredHeight = rowsCount * approxRowHeight + 10;
+
+      if (!hasSpaceForTable(requiredHeight)) {
+        pdf.addPage();
+        tableStartY = 20;
+      }
+
       autoTable(pdf, {
         startY: tableStartY,
         head: [apprenantsHeader],
@@ -138,6 +160,16 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
+
+      // حساب ارتفاع الجدول تقريبا
+      const rowsCount = resultatsTable.rows.length + 1;
+      const approxRowHeight = 7;
+      const requiredHeight = rowsCount * approxRowHeight + 10;
+
+      if (!hasSpaceForTable(requiredHeight)) {
+        pdf.addPage();
+        tableStartY = 20;
+      }
 
       const body = resultatsTable.rows.map((row, idx) => {
         if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
@@ -182,39 +214,34 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
 
-      // --- نص التوضيح (Remarques) ---
-      const remarques = `Remarques :
-1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.
-2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :
-• La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.
-• L'obtention d'un certificat de prévention des risques de la Protection Civile.
-• La présence de voies de circulation et d'un système de ventilation adéquats.
-• La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.`;
-
-      // قياس ارتفاع النص (تقريبياً)
-      const lineHeight = 7; // مقياس ارتفاع السطر بالملليمتر
-      const lines = remarques.split('\n').length;
-      const requiredHeight = lines * lineHeight;
-
-      // إذا لم تكن هناك مساحة كافية، أضف صفحة جديدة
-      if (tableStartY + requiredHeight > pageHeight - 20) {
-        pdf.addPage();
-        tableStartY = 20; // بداية جيدة في الصفحة الجديدة
-      }
-
+      // --- النص التوضيحي أسفل النتائج ---
       pdf.setFontSize(10);
       pdf.setTextColor(80);
       pdf.setFont(undefined, 'normal');
-      pdf.text(remarques, 14, tableStartY, {
-        maxWidth: pageWidth - 28,
-        align: 'left'
-      });
+      pdf.text(
+        "Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.\n" +
+        "1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.\n" +
+        "2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :\n" +
+        "    - La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.\n" +
+        "    - L'obtention d'un certificat de prévention des risques de la Protection Civile.\n" +
+        "    - La présence de voies de circulation et d'un système de ventilation adéquats.\n" +
+        "    - La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.",
+        14,
+        tableStartY,
+        { maxWidth: pageWidth - 28, align: 'left' }
+      );
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
 
-    // --- إضافة ترقيم الصفحات ---
-    addPageNumbers();
+    // --- ترقيم الصفحات في كل صفحة ---
+    const pageCount = pdf.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(9);
+      pdf.setTextColor(100);
+      pdf.text(`Page ${i} / ${pageCount}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+    }
 
     // --- حفظ الملف ---
     const cleanTitle = "Rapport_de_diagnostic";
