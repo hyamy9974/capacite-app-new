@@ -44,7 +44,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
   loadLogoMinistere((logoMinistere) => {
     let currentY = 10;
     if (logoMinistere) {
-      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 45, 25);
+      pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 50);
     }
     currentY += 50;
 
