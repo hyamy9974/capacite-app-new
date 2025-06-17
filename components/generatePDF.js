@@ -46,10 +46,10 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     if (logoMinistere) {
       pdf.addImage(logoMinistere, 'PNG', (pageWidth - 68) / 2, currentY, 68, 38);
     }
-    currentY += 40;
+    currentY += 35;
 
     // --- النص تحت الشعار ---
-    pdf.setFontSize(9);
+    pdf.setFontSize(8);
     pdf.text(
       "Direction Générale de l'Inspection et de l'Audit Pédagogique",
       pageWidth / 2,
