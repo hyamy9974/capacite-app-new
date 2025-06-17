@@ -74,7 +74,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     const rectY = currentY - 12;
     const rectWidth = textWidth + 2 * paddingH;
     const rectHeight = 15 + 2 * paddingV;
-    pdf.roundedRect(rectX, rectY, rectWidth, rectHeight, 3, 3, 'FD');
+    pdf.roundedRect(rectX, rectY, rectWidth, rectHeight, 1, 1, 'FD');
     pdf.setTextColor(41, 128, 185);
     pdf.text(title, pageWidth / 2, currentY, { align: 'center' });
     pdf.setTextColor(0, 0, 0);
