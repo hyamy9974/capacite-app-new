@@ -165,9 +165,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.setTextColor(80);
       pdf.setFont(undefined, 'normal');
       pdf.text(
-        "Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.",
-        "Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :",
-
+        "Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.",  
         14,
         tableStartY,
         { maxWidth: pageWidth - 28, align: 'left' }
