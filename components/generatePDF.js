@@ -46,9 +46,9 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     if (logoMinistere) {
       pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 15);
     }
-    currentY += 17; // مسافة بين الشعار والنص
+    currentY += 17;
 
-    // --- إضافة النص تحت الشعار ---
+    // --- النص تحت الشعار ---
     pdf.setFontSize(9);
     pdf.text(
       "Direction Générale de l'Inspection et de l'Audite Pédagogique",
@@ -56,7 +56,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       currentY,
       { align: 'center' }
     );
-    currentY += 13; // مسافة بين النص والعنوان الرئيسي
+    currentY += 13;
 
     // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
@@ -85,7 +85,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [41, 128, 185] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
+      tableStartY = pdf.lastAutoTable.finalY + 10;
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
@@ -106,20 +106,18 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         headStyles: { fillColor: [255, 165, 0] },
         margin: { left: 14, right: 14 },
       });
-      tableStartY = pdf.lastAutoTable.finalY + 10; // إضافة تباعد بعد الجدول
+      tableStartY = pdf.lastAutoTable.finalY + 10;
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
-    // --- ملخص النتائج (يدعم colSpan/سطر Résultat Global) ---
+    // --- ملخص النتائج ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
 
-      // تجهيز صفوف الجدول مع colSpan وstyling
       const body = resultatsTable.rows.map((row, idx) => {
-        // إذا كان السطر الأخير (Résultat Global) وهو كائن colSpan
         if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
           return [
             {
@@ -137,7 +135,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
             }
           ];
         }
-        // بقية الصفوف: تلوين كلمة Excédent/Dépassement فقط في العمود الرابع
         return row.map((cell, colIdx) => {
           if (colIdx === 3) {
             return {
@@ -162,6 +159,17 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
+
+      // --- النص التوضيحي أسفل النتائج ---
+      pdf.setFontSize(10);
+      pdf.setTextColor(80);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(
+        "Remarque finale : Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.",
+        14,
+        tableStartY,
+        { maxWidth: pageWidth - 28, align: 'left' }
+      );
     } else {
       console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
