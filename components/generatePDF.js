@@ -166,8 +166,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.setFont(undefined, 'normal');
       pdf.text(
         "Remarques:",
-        "1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.",
-        "2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :",
+        "* Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.",
+        "** Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :",
         "- La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.",
         "- L'obtention d'un certificat de prévention des risques de la Protection Civile.",
         "- La présence de voies de circulation et d'un système de ventilation adéquats.",
