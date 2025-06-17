@@ -197,12 +197,12 @@ export default function TDA() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6">
       <div ref={pdfRef}>
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
           Test de Dépassement Actuel
         </h1>
-        <div className="flex gap-6 flex-wrap mb-8">
+        <div className="flex flex-col lg:flex-row gap-6 flex-wrap mb-8">
           <TableauSalles
             salles={salles}
             setSalles={setSalles}
@@ -216,45 +216,51 @@ export default function TDA() {
             setApprenants={setApprenants}
           />
         </div>
-        <TableauEffectif
-          titre="Effectif Actuel"
-          specialties={specialties}
-          modeActuel={true}
-          onDataChange={handleEffectifChange}
-          data={effectif}
-          salles={salles}
-        />
-        <TableauRepartition
-          titre="Répartition actuelle des heures"
-          effectifData={effectif}
-          specialties={specialties}
-          onDataChange={handleRepartitionChange}
-          salles={salles}
-        />
-        <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
+        <div className="mb-4">
+          <TableauEffectif
+            titre="Effectif Actuel"
+            specialties={specialties}
+            modeActuel={true}
+            onDataChange={handleEffectifChange}
+            data={effectif}
+            salles={salles}
+          />
+        </div>
+        <div className="mb-4">
+          <TableauRepartition
+            titre="Répartition actuelle des heures"
+            effectifData={effectif}
+            specialties={specialties}
+            onDataChange={handleRepartitionChange}
+            salles={salles}
+          />
+        </div>
+        <div className="mb-4">
+          <TableauResultats titre="Résultat" data={resultatsData} salles={salles} />
+        </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-4 mt-10">
+      <div className="flex flex-col md:flex-row flex-wrap justify-center gap-4 mt-10">
         <button
           onClick={() => window.location.href = "/"}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
+          className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md shadow"
         >
           ↩️ Page d&apos;accueil
         </button>
         <button
           onClick={() => generatePDF({ sallesSummary, apprenantsSummary, resultatsTable })}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
+          className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md shadow"
         >
           📄 Générer le PDF
         </button>
         <button
           onClick={handleSave}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
+          className="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md shadow"
         >
           💾 Enregistrer les modifications
         </button>
         <button
           onClick={handleReset}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
+          className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-md shadow"
         >
           🗑️ Réinitialiser
         </button>

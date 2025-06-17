@@ -25,18 +25,27 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-3xl w-full text-center">
-        {/* شعار بمقاس 90x15 */}
-        <Image
-          src="/logo.png"
-          alt="Logo Ministère"
-          width={360}
-          height={60}
-          className="mx-auto mb-4"
-          style={{ width: 360, height: 60, objectFit: 'contain' }}
-        />
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 max-w-3xl w-full text-center">
+        {/* شعار Responsive: يعرض بحجم 90x15 على الشاشات الكبيرة ويصغر تلقائياً على الشاشات الصغيرة */}
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="Logo Ministère"
+            width={90}
+            height={15}
+            className="mx-auto"
+            style={{
+              width: "90px",
+              height: "15px",
+              maxWidth: "100%",
+              maxHeight: "40px",
+              objectFit: "contain"
+            }}
+            // يمكن إزالة style إذا كان الشعار صغيراً جداً على الموبايل واستبداله بmax-w-full h-auto فقط
+          />
+        </div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-6">
           Diagnostic de la Capacité d&apos;Accueil
         </h1>
 
@@ -70,13 +79,13 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-center gap-6 mb-6">
           <button
             onClick={() => router.push('/tda')}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow"
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow"
           >
             Test de dépassement actuel
           </button>
           <button
             onClick={() => router.push('/tdp')}
-            className="bg-[#FFA500] hover:bg-[#e69500] text-white font-semibold py-3 px-6 rounded-xl shadow"
+            className="w-full md:w-auto bg-[#FFA500] hover:bg-[#e69500] text-white font-semibold py-3 px-6 rounded-xl shadow"
           >
             Test de dépassement prévu
           </button>
