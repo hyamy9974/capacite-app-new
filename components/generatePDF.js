@@ -78,7 +78,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 12);
     pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 18);
 
-    let tableStartY = currentY + 25;
+    let tableStartY = currentY + 27;
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
