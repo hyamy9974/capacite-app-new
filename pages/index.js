@@ -27,17 +27,17 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6">
       <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 max-w-3xl w-full text-center">
-        {/* شعار Responsive: يعرض بحجم 90x15 على الشاشات الكبيرة ويصغر تلقائياً على الشاشات الصغيرة */}
+        {/* شعار Responsive: يعرض بحجم 360x60 على الشاشات الكبيرة ويصغر تلقائياً على الشاشات الصغيرة */}
         <div className="flex justify-center mb-4">
           <Image
             src="/logo.png"
             alt="Logo Ministère"
-            width={90}
-            height={15}
+            width={360}
+            height={60}
             className="mx-auto"
             style={{
-              width: "90px",
-              height: "15px",
+              width: "360px",
+              height: "60px",
               maxWidth: "100%",
               maxHeight: "40px",
               objectFit: "contain"
