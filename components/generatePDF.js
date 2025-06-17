@@ -46,7 +46,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     if (logoMinistere) {
       pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 50);
     }
-    currentY += 30;
+    currentY += 60;
 
     // --- النص تحت الشعار ---
     pdf.setFontSize(9);
