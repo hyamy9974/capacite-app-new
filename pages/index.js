@@ -81,18 +81,18 @@ export default function Home() {
             onClick={() => router.push('/tda')}
             className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow"
           >
-            Test de dépassement actuel
+            Diagnostic de l'état actuel
           </button>
           <button
             onClick={() => router.push('/tdp')}
             className="w-full md:w-auto bg-[#FFA500] hover:bg-[#e69500] text-white font-semibold py-3 px-6 rounded-xl shadow"
           >
-            Test de dépassement prévu
+            Diagnostic de l'état prévu
           </button>
         </div>
 
         <p className="text-sm text-gray-500">
-          Version du programme : <strong>V1.0</strong>
+          Version : <strong>V1.0</strong>
         </p>
       </div>
     </div>
