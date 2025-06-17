@@ -75,10 +75,10 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
     const numEnregistrement = localStorage.getItem('numEnregistrement') || '---';
     pdf.setFontSize(10);
-    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 10);
-    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 16);
+    pdf.text(`Nom de la structure : ${nomStructure}`, 14, currentY + 12);
+    pdf.text(`N° d'enregistrement : ${numEnregistrement}`, 14, currentY + 18);
 
-    let tableStartY = currentY + 28;
+    let tableStartY = currentY + 25;
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
