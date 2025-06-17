@@ -78,7 +78,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     pdf.setTextColor(41, 128, 185);
     pdf.text(title, pageWidth / 2, currentY, { align: 'center' });
     pdf.setTextColor(0, 0, 0);
-    currentY += 20;
+    currentY += 15;
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
@@ -219,13 +219,13 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.setTextColor(80);
       pdf.setFont(undefined, 'normal');
       pdf.text(
-        "Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.\n" +
+        "Remarques:" +
         "1. Ce rapport présente une estimation diagnostique de la capacité d'accueil actuelle sur la base des données saisies. Il ne constitue pas une validation définitive, mais un outil d'aide à la décision pour une meilleure planification des espaces pédagogiques.\n" +
         "2. Les résultats de l'étude précitée demeurent tributaires de la disponibilité des éléments suivants :\n" +
-        "    - La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.\n" +
-        "    - L'obtention d'un certificat de prévention des risques de la Protection Civile.\n" +
-        "    - La présence de voies de circulation et d'un système de ventilation adéquats.\n" +
-        "    - La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.",
+        "- La conformité qualitative et quantitative de l'équipe de formateurs avec le nombre de groupes et la nature des spécialités.\n" +
+        "- L'obtention d'un certificat de prévention des risques de la Protection Civile.\n" +
+        "- La présence de voies de circulation et d'un système de ventilation adéquats.\n" +
+        "- La mise à disposition des équipements nécessaires en fonction de la spécificité des spécialités.",
         14,
         tableStartY,
         { maxWidth: pageWidth - 28, align: 'left' }
