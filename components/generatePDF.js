@@ -46,13 +46,13 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
     if (logoMinistere) {
       pdf.addImage(logoMinistere, 'PNG', (pageWidth - 90) / 2, currentY, 90, 50);
     }
-    currentY += 17;
+    currentY += 30;
 
     // --- النص تحت الشعار ---
     pdf.setFontSize(9);
     pdf.text(
       "Direction Générale de l'Inspection et de l'Audit Pédagogique",
-      pageWidth / 5,
+      pageWidth / 2,
       currentY,
       { align: 'center' }
     );
@@ -60,7 +60,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- العنوان الرئيسي ---
     pdf.setFontSize(16);
-    pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 5, currentY, { align: 'center' });
+    pdf.text("Rapport de diagnostic de la capacité d'accueil", pageWidth / 2, currentY, { align: 'center' });
 
     // --- معلومات عامة ---
     const nomStructure = localStorage.getItem('nomStructure') || 'Structure inconnue';
