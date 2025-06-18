@@ -89,7 +89,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     let tableStartY = currentY + 15;
 
-    // دالة لفحص هل هناك مساحة كافية على الصفحة للرسم قبل أن نبدأ الجدول (لكي لا ينقسم بداية الجدول)
     function hasSpaceForTable(requiredHeight) {
       return (pageHeight - tableStartY) >= requiredHeight;
     }
@@ -100,14 +99,13 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.text('Synthèse des salles', 14, tableStartY);
       tableStartY += 4;
 
-      // حساب ارتفاع الجدول تقريبا
-      const rowsCount = sallesSummary.length + 1; // +1 للرأس
-      const approxRowHeight = 7; // تقديري لكل صف
+      const rowsCount = sallesSummary.length + 1;
+      const approxRowHeight = 7;
       const requiredHeight = rowsCount * approxRowHeight + 10;
 
       if (!hasSpaceForTable(requiredHeight)) {
         pdf.addPage();
-        tableStartY = 20; // بداية رسم جديد في صفحة جديدة
+        tableStartY = 20;
       }
 
       autoTable(pdf, {
@@ -120,8 +118,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
-    } else {
-      console.warn('⚠️ لم يتم العثور على بيانات ملخص القاعات.');
     }
 
     // --- ملخص المتعلمين ---
@@ -151,8 +147,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         margin: { left: 14, right: 14 },
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
-    } else {
-      console.warn('⚠️ لم يتم العثور على بيانات ملخص المتعلمين.');
     }
 
     // --- ملخص النتائج ---
@@ -161,7 +155,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
 
-      // حساب ارتفاع الجدول تقريبا
       const rowsCount = resultatsTable.rows.length + 1;
       const approxRowHeight = 7;
       const requiredHeight = rowsCount * approxRowHeight + 10;
@@ -173,6 +166,10 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
       const body = resultatsTable.rows.map((row, idx) => {
         if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
+          const resultText = row[1];
+          const percentage = row[2];
+          const isExcedent = resultText === 'Excédent';
+
           return [
             {
               content: row[0].value,
@@ -180,9 +177,9 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
               styles: { halign: 'center', fontStyle: 'bold', textColor: [33,33,33], fillColor: [245,245,245] }
             },
             {
-              content: row[1],
+              content: `${resultText} (${percentage})`,
               styles: {
-                fillColor: row[1] === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
+                fillColor: isExcedent ? [39, 174, 96] : [231, 76, 60],
                 textColor: [255,255,255],
                 fontStyle: 'bold'
               }
@@ -191,10 +188,11 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         }
         return row.map((cell, colIdx) => {
           if (colIdx === 3) {
+            const isExcedent = cell === 'Excédent';
             return {
               content: cell,
               styles: {
-                textColor: cell === 'Excédent' ? [39, 174, 96] : [231, 76, 60],
+                textColor: isExcedent ? [39, 174, 96] : [231, 76, 60],
                 fontStyle: 'bold'
               }
             };
@@ -214,7 +212,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       });
       tableStartY = pdf.lastAutoTable.finalY + 10;
 
-      // --- النص التوضيحي أسفل النتائج ---
       pdf.setFontSize(10);
       pdf.setTextColor(80);
       pdf.setFont(undefined, 'normal');
@@ -230,11 +227,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         tableStartY,
         { maxWidth: pageWidth - 28, align: 'left' }
       );
-    } else {
-      console.warn('⚠️ لم يتم العثور على بيانات ملخص النتائج.');
     }
 
-    // --- ترقيم الصفحات في كل صفحة ---
     const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
@@ -243,7 +237,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       pdf.text(`Page ${i} / ${pageCount}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
     }
 
-    // --- حفظ الملف ---
     const cleanTitle = "Rapport_de_diagnostic";
     const dateStr = new Date().toISOString().split('T')[0];
     pdf.save(`${cleanTitle}_${dateStr}.pdf`);
