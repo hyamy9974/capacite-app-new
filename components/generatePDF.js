@@ -96,7 +96,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- ملخص القاعات ---
     if (sallesSummary && sallesSummary.length > 0) {
-      pdf.setFontSize(13);
+      pdf.setFontSize(11);
       pdf.text('Synthèse des salles', 14, tableStartY);
       tableStartY += 4;
 
@@ -126,7 +126,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- ملخص المتعلمين ---
     if (apprenantsSummary && apprenantsSummary.length > 0) {
-      pdf.setFontSize(13);
+      pdf.setFontSize(11);
       pdf.text('Synthèse des apprenants', 14, tableStartY);
       const apprenantsHeader = ['Spécialité', 'Total groupes', 'Total apprenants'];
       const apprenantsBody = apprenantsSummary.map(row => row.slice(0, 3));
@@ -157,7 +157,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
 
     // --- ملخص النتائج ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
-      pdf.setFontSize(13);
+      pdf.setFontSize(11);
       pdf.text('Synthèse des résultats', 14, tableStartY);
       tableStartY += 4;
 
