@@ -200,7 +200,7 @@ export default function TDA() {
     <div className="min-h-screen bg-gray-100 p-2 sm:p-4 md:p-6">
       <div ref={pdfRef}>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
-          Test de Dépassement Actuel
+          Diagnostic de de l&apos;état actuel
         </h1>
         <div className="flex flex-col lg:flex-row gap-6 flex-wrap mb-8">
           <TableauSalles

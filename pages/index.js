@@ -83,7 +83,7 @@ export default function Home() {
         </div>
 
         <p className="text-sm text-gray-500">
-          Version du programme : <strong>V1.0</strong>
+          Version : <strong>V1.0</strong>
         </p>
       </div>
     </div>
