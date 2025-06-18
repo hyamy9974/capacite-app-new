@@ -20,6 +20,15 @@ function loadLogoMinistere(callback) {
   };
 }
 
+// دالة لحساب النسبة وعرض النص المناسب
+function formatEtatAvecPourcentage(sommeBesoinTotal, sommeHeuresMax) {
+  if (!sommeHeuresMax || sommeHeuresMax === 0) return '-';
+  const ratio = (sommeBesoinTotal / sommeHeuresMax) - 1;
+  const pourcentage = (ratio * 100).toFixed(2);
+  const etat = ratio >= 0 ? 'Excédent' : 'Dépassement';
+  return `${etat} (${pourcentage}%)`;
+}
+
 export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }) {
   if (typeof window === 'undefined') {
     alert('⚠️ لا يمكن توليد PDF - يتم تنفيذ الكود خارج المتصفح.');
@@ -164,8 +173,30 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         tableStartY = 20;
       }
 
-      // تحويل صفوف الجدول مع تنسيق خاص للخلية 0 و 3 حسب القديم
+      // بناء صفوف جدول النتائج مع حساب النسبة فقط لصف Résultat Global
       const body = resultatsTable.rows.map((row) => {
+        if (typeof row[0] === 'string' && row[0].toLowerCase().includes('résultat global')) {
+          const sommeBesoinTotal = Number(row[1]) || 0;
+          const sommeHeuresMax = Number(row[2]) || 0;
+          const texteEtat = formatEtatAvecPourcentage(sommeBesoinTotal, sommeHeuresMax);
+          return row.map((cell, colIdx) => {
+            if (colIdx === 3) {
+              const isExcedent = texteEtat.startsWith('Excédent');
+              return {
+                content: texteEtat,
+                styles: {
+                  fillColor: isExcedent ? [39, 174, 96] : [231, 76, 60],
+                  textColor: [255, 255, 255],
+                  fontStyle: 'bold',
+                  halign: 'center',
+                }
+              };
+            }
+            return { content: cell };
+          });
+        }
+
+        // باقي الصفوف بنفس التنسيق القديم
         if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
           const resultText = row[1];
           const percentage = row[2];
