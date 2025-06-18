@@ -149,7 +149,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
       tableStartY = pdf.lastAutoTable.finalY + 10;
     }
 
-    // --- ملخص النتائج ---
+    // --- ملخص النتائج (من resultatsTable المستمد من TableauResultats) ---
     if (resultatsTable && resultatsTable.rows.length > 0) {
       pdf.setFontSize(13);
       pdf.text('Synthèse des résultats', 14, tableStartY);
@@ -164,7 +164,8 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         tableStartY = 20;
       }
 
-      const body = resultatsTable.rows.map((row, idx) => {
+      // تحويل صفوف الجدول مع تنسيق خاص للخلية 0 و 3 حسب القديم
+      const body = resultatsTable.rows.map((row) => {
         if (row[0] && typeof row[0] === "object" && row[0].colSpan === 3) {
           const resultText = row[1];
           const percentage = row[2];
@@ -228,6 +229,7 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         { maxWidth: pageWidth - 28, align: 'left' }
       );
     }
+
     const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
