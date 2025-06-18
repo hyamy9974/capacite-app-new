@@ -228,7 +228,6 @@ export function generatePDF({ sallesSummary, apprenantsSummary, resultatsTable }
         { maxWidth: pageWidth - 28, align: 'left' }
       );
     }
-
     const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
